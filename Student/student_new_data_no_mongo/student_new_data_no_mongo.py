@@ -1,3 +1,206 @@
+
+
+
+# BY XZ - BM7 (ADAPTED FOR NEW DATASET NO DATABASE MONGO)
+
+
+       #####################
+     ##                   ##
+   ##   ####         ####   ##
+  #    #    #       #    #    #
+ #     # O  #       #  O #     #
+#       ####         ####       #
+#                               #
+#        \   \_____/   /        #
+#         \           /         #
+ #         \  -----  /         #
+  #          \_____/          #
+   ##                       ##
+     ##                 ##
+       #################
+
+# -----------------------------------------------------------------------------
+# STUDENT PERFORMANCE PREDICTOR — FULL SYSTEM DESCRIPTION
+# BY XZ - BM7 (Adapted for New Dataset: StudentPerformanceFactors.csv)
+# -----------------------------------------------------------------------------
+# This project is a complete AI-powered web platform designed to predict student
+# exam performance using machine learning, neural networks, a Flask backend,
+# JWT authentication, MongoDB storage, analytics, insights, and a full dashboard.
+#
+# It is a full end-to-end ML system, not a simple training script.
+#
+# -----------------------------------------------------------------------------
+# 1. DATASET & PREPROCESSING
+# -----------------------------------------------------------------------------
+# - Loads the dataset: StudentPerformanceFactors.csv
+# - Removes duplicates and fills missing values
+# - Automatically detects:
+#       • Numerical columns (scaled with StandardScaler)
+#       • Categorical columns (encoded with OneHotEncoder)
+# - Builds a ColumnTransformer and saves it using joblib
+# - Ensures the same preprocessing is used during training and prediction
+#
+# -----------------------------------------------------------------------------
+# 2. MACHINE LEARNING MODELS
+# -----------------------------------------------------------------------------
+# The system trains three models:
+#   1. Linear Regression          → Baseline model
+#   2. RandomForestRegressor      → Strong classical model
+#   3. Deep Neural Network (Keras) → Main production model
+#
+# Neural Network features:
+#   - Multiple Dense layers
+#   - BatchNormalization
+#   - Dropout regularization
+#   - Adam optimizer
+#   - EarlyStopping + ReduceLROnPlateau
+#   - Saved to artifacts/best_model.keras
+#
+# Models are loaded from disk if available (no retraining needed).
+#
+# -----------------------------------------------------------------------------
+# 3. PREDICTION PIPELINE FLOW
+# -----------------------------------------------------------------------------
+# 1) Receives “friendly inputs” from frontend (e.g., hours_studied)
+# 2) Maps them to dataset columns (Hours_Studied)
+# 3) Missing values filled using dataset mean/mode
+# 4) Uses saved preprocessor to transform the row
+# 5) Neural network predicts final exam score (0–100)
+# 6) Prediction is interpreted into:
+#       • Excellent
+#       • Very Good
+#       • Needs Improvement
+#       • At Risk
+# 7) AI-generated insights created based on inputs (study time, sleep, attendance)
+#
+# -----------------------------------------------------------------------------
+# 4. BACKEND (FLASK)
+# -----------------------------------------------------------------------------
+# Flask is the central controller that:
+#   - Serves API routes
+#   - Serves frontend HTML files
+#   - Handles authentication
+#   - Performs predictions
+#   - Computes analytics
+#   - Connects to MongoDB
+#   - Provides CSV export and metrics endpoints
+#
+# Protected pages use login_required via JWT.
+#
+# -----------------------------------------------------------------------------
+# 5. AUTHENTICATION (JWT)
+# -----------------------------------------------------------------------------
+# - Users can register / login
+# - Passwords hashed using SHA-256
+# - JWT token created and stored in HttpOnly cookies
+# - Decorators:
+#       • login_required        → Protects frontend pages
+#       • api_login_required    → Protects API endpoints
+#
+# Ensures secure access and prevents unauthorized predictions.
+#
+# -----------------------------------------------------------------------------
+# 6. MONGODB STORAGE
+# -----------------------------------------------------------------------------
+# MongoDB stores:
+#   - Users (full name, username, email, hashed password)
+#   - Predictions (score, inputs, level, timestamp)
+#
+# Unique indexes prevent duplicate accounts.
+#
+# Prediction documents include:
+#   • user_id
+#   • pred (0–100)
+#   • level (performance category)
+#   • friendly input fields
+#   • created_at timestamp
+#
+# -----------------------------------------------------------------------------
+# 7. ANALYTICS ENGINE
+# -----------------------------------------------------------------------------
+# The backend generates statistics for the dashboard:
+#   - Average grade
+#   - Level distribution (Excellent → At Risk)
+#   - Monthly prediction trends
+#   - Feature importance (RandomForest)
+#   - Neural Network training history
+#   - Dataset-level insights (correlations, attendance impact, study hours impact)
+#   - Personal recommendations based on user history
+#   - Grade improvement plan
+#   - Performance benchmarks (user vs dataset)
+#
+# -----------------------------------------------------------------------------
+# 8. FRONTEND INTEGRATION
+# -----------------------------------------------------------------------------
+# Frontend pages (served from /web) send requests via fetch():
+#
+#   /api/predict
+#   /api/save
+#   /api/analytics
+#   /api/feature_importance
+#   /api/user
+#   /api/user/stats
+#   /api/personal_recommendations
+#
+# Pages include:
+#   - Dashboard
+#   - Insights
+#   - Analytics
+#   - Records
+#   - Profile
+#
+# -----------------------------------------------------------------------------
+# 9. END-TO-END SYSTEM FLOW
+# -----------------------------------------------------------------------------
+# 1) User logs in → JWT token issued
+# 2) User enters prediction data
+# 3) Backend maps friendly inputs → dataset columns
+# 4) Preprocessor transforms input row
+# 5) Neural network predicts final exam score
+# 6) Insights + interpretation generated
+# 7) Prediction saved in MongoDB
+# 8) Dashboard analytics update automatically
+#
+# Full loop:
+#
+#   Frontend → Flask → Preprocessor → ML Model → MongoDB → Analytics → Frontend
+#
+# -----------------------------------------------------------------------------
+# 10. SUMMARY
+# -----------------------------------------------------------------------------
+# This file represents a complete AI platform with:
+#   - Machine Learning
+#   - Deep Learning
+#   - Data preprocessing
+#   - API design
+#   - Authentication
+#   - Database integration
+#   - User analytics
+#   - Visualization preparation
+#
+# All modules are connected to form a production-like student performance prediction system.
+#
+# -----------------------------------------------------------------------------
+
+       #####################
+     ##                   ##
+   ##   ####         ####   ##
+  #    #    #       #    #    #
+ #     # O  #       #  O #     #
+#       ####         ####       #
+#                               #
+#        \   \_____/   /        #
+#         \           /         #
+ #         \  -----  /         #
+  #          \_____/          #
+   ##                       ##
+     ##                 ##
+       #################
+
+
+
+
+
 import os
 import sys
 import json
@@ -16,20 +219,17 @@ import tensorflow as tf
 from tensorflow.keras import layers, models, callbacks
 from flask import Flask, request, jsonify, send_from_directory
 
-# --- Configuration ---
 DATA_FILE = r"Student/data/StudentPerformanceFactors.csv"
 ARTIFACTS_DIR = Path("./artifacts")
 WEB_DIR = Path("./web")
 MODEL_PATH = ARTIFACTS_DIR / "best_model.keras"
 PREPROCESSOR_PATH = ARTIFACTS_DIR / "preprocessor.pkl"
 
-# Ensure directories exist
 ARTIFACTS_DIR.mkdir(exist_ok=True)
 WEB_DIR.mkdir(exist_ok=True)
 
 app = Flask(__name__, static_folder=str(WEB_DIR))
 
-# --- Data Loading & Processing ---
 print("\n[INIT] Loading dataset...")
 if not os.path.exists(DATA_FILE):
     print(f"ERROR: dataset not found at: {DATA_FILE}")
@@ -52,7 +252,6 @@ num_cols = X_df.select_dtypes(include=['int64', 'float64']).columns.tolist()
 print(f"[DATA] Numeric columns: {num_cols}")
 print(f"[DATA] Categorical columns: {cat_cols}")
 
-# --- Preprocessor Setup ---
 from sklearn import __version__ as skl
 _major = int(skl.split(".")[0])
 _minor = int(skl.split(".")[1]) if len(skl.split(".")) > 1 else 0
@@ -75,7 +274,6 @@ else:
 X_processed = preprocessor.transform(X_df)
 X_train, X_test, y_train, y_test = train_test_split(X_processed, y, test_size=0.2, random_state=42)
 
-# --- Classical Models Training ---
 model_performance = {}
 print("[TRAIN] Training classical models...")
 
@@ -103,7 +301,6 @@ model_performance['Random Forest'] = {
     'R2': r2_score(y_test, rf_pred)
 }
 
-# --- Neural Network Setup ---
 input_dim = X_train.shape[1]
 
 def build_nn(input_dim):
@@ -154,7 +351,6 @@ model_performance['Neural Network'] = {
     'R2': r2_score(y_test, nn_preds)
 }
 
-# --- PRINTING INITIAL METRICS TO TERMINAL ---
 print("\n" + "█"*50)
 print("📊 FINAL MODEL PERFORMANCE REPORT (ON SERVER START)")
 print("█"*50)
@@ -165,7 +361,6 @@ for name, metrics in model_performance.items():
     print(f"   └─ MSE:      {metrics['MSE']:.4f}")
 print("█"*50 + "\n")
 
-# --- Helper Functions ---
 
 friendly_to_dataset = {
     "hours_studied": "Hours_Studied",
@@ -238,7 +433,6 @@ def generate_ai_insights(prediction_data):
         insights.append({"type": "danger", "title": "Low Attendance", "message": "Attendance is critical for success.", "icon": "bi-calendar-x"})
     return insights
 
-# --- Flask Routes ---
 
 @app.route("/")
 def home():
@@ -277,7 +471,6 @@ def api_predict():
 
 @app.route("/api/model_metrics")
 def api_model_metrics():
-    # Fetch metrics specifically for Neural Network
     nn = model_performance.get("Neural Network", {})
     
     mae = float(nn.get("MAE", 0))
@@ -285,7 +478,6 @@ def api_model_metrics():
     r2  = float(nn.get("R2", 0))
     rmse = float(np.sqrt(mse))
     
-    # --- PRINTING TO TERMINAL ---
     print("\n" + "█"*45)
     print("📡 [API] SENDING LIVE MODEL METRICS")
     print("█"*45)
@@ -294,7 +486,6 @@ def api_model_metrics():
     print(f"   ➤ MSE (Mean Sq Error):  {mse:.4f}")
     print(f"   ➤ RMSE (Root MSE):      {rmse:.4f}")
     print("█"*45 + "\n")
-    # ----------------------------
 
     history_path = ARTIFACTS_DIR / "training_history.json"
     history = json.loads(history_path.read_text()) if history_path.exists() else {}

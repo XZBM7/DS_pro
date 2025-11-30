@@ -1,40 +1,9 @@
 
 
-##NO DATABASE MONGO
-## BY XZ - BM7
 
-       #####################
-     ##                   ##
-   ##   ####         ####   ##
-  #    #    #       #    #    #
- #     # O  #       #  O #     #
-#       ####         ####       #
-#                               #
-#        \   \_____/   /        #
-#         \           /         #
- #         \  -----  /         #
-  #          \_____/          #
-   ##                       ##
-     ##                 ##
-       #################
+# BY XZ - BM7 (ADAPTED FOR OLD DATASET NO DATABASE MONGO)
 
 
-# BY XZ - BM7
-
-       #####################
-     ##                   ##
-   ##   ####         ####   ##
-  #    #    #       #    #    #
- #     # O  #       #  O #     #
-#       ####         ####       #
-#                               #
-#        \   \_____/   /        #
-#         \           /         #
- #         \  -----  /         #
-  #          \_____/          #
-   ##                       ##
-     ##                 ##
-       #################
 
 
 
@@ -53,77 +22,168 @@
      ##                 ##
        #################
 
-
-# BY XZ - BM7
-
-
-# This project is a full student performance prediction platform built with machine learning models, 
-# a complete API, authentication system, dashboard, analytics engine, and MongoDB storage. 
-# In short: this is not your average weekend script. It is a fully armed and operational battle station.
-
-# First, the system loads and cleans the student dataset (student-por.csv). 
-# It identifies numerical and categorical features, then builds a preprocessing pipeline using StandardScaler 
-# for numeric data and OneHotEncoder for categorical features. 
-# If a preprocessor is already saved, we reuse it because we value efficiency and RAM, not punishment.
-
-# After preprocessing, the data is split into training and testing sets. 
-# The system then trains classical machine learning models:
-# Linear Regression and RandomForestRegressor. 
-# Each model's performance is evaluated using MAE, MSE, and R2 
-# to confirm whether the model actually learned something or just pretended to.
-
-# Because we enjoy overachieving, a neural network is also included using Keras, 
-# with multiple Dense layers, Dropout for regularization, and callbacks such as EarlyStopping. 
-# If a trained model already exists, we load it instead of retraining, 
-# because life is too short to wait for neural networks to relearn the same thing every time.
-
-# MongoDB is used as the database. 
-# We establish a connection, create collections for users and predictions, 
-# and apply unique indexes on email and username for data sanity. 
-# If MongoDB refuses to cooperate, the app continues without throwing a tantrum.
-
-# The authentication system uses JWT tokens. 
-# The app supports registration, login, logout, token refresh, 
-# and secure API protection using decorators like login_required and api_login_required.
-# In short, if you are not logged in, you are not invited to the party.
-
-# The /api/predict endpoint:
-# It accepts user-friendly input fields (e.g., study_time, absences), converts them to dataset feature names,
-# runs the neural network model, and returns the predicted grade along with performance level 
-# and AI-generated insights. 
-# The insights help the user pretend the system is smarter than it really is.
-
-# The /api/save endpoint stores prediction history in MongoDB along with all input fields 
-# so the user can view analytics later and also wonder why they kept scoring low in the first exam.
-
-# The analytics system is quite extensive:
-# It aggregates prediction statistics, average grades, distributions, monthly trends, 
-# and even compares model performance. 
-# Basically, a mini data analytics platform is included for free.
-
-# The system also provides personalized recommendations based on user prediction history.
-# For example:
-# If the user barely studies, we gently suggest increasing study time.
-# If they skip school like it's a hobby, we mention attendance improvements.
-# If everything is fine, we still give recommendations so they feel supported.
-
-# The /api/feature_importance endpoint computes feature importance using RandomForest, 
-# including correctly grouping OneHotEncoded features back into their original columns. 
-# This is the kind of attention to detail that makes managers smile.
-
-# Additional modules include:
-# User profile management
-# Change password API
-# Export CSV functionality
-# Records archive
-# Performance benchmarks
-# User activity tracking
-# Dataset-wide insights and correlation analysis
-
-# Finally, the server launches on 127.0.0.1:5000, prints model performance in the console, 
-# and hosts the frontend pages from the web directory.
-
-
+# -----------------------------------------------------------------------------
+# STUDENT PERFORMANCE PREDICTOR — FULL SYSTEM DESCRIPTION
+# BY XZ - BM7 (Adapted for New Dataset: StudentPerformanceFactors.csv)
+# -----------------------------------------------------------------------------
+# This project is a complete AI-powered web platform designed to predict student
+# exam performance using machine learning, neural networks, a Flask backend,
+# JWT authentication, MongoDB storage, analytics, insights, and a full dashboard.
+#
+# It is a full end-to-end ML system, not a simple training script.
+#
+# -----------------------------------------------------------------------------
+# 1. DATASET & PREPROCESSING
+# -----------------------------------------------------------------------------
+# - Loads the dataset: StudentPerformanceFactors.csv
+# - Removes duplicates and fills missing values
+# - Automatically detects:
+#       • Numerical columns (scaled with StandardScaler)
+#       • Categorical columns (encoded with OneHotEncoder)
+# - Builds a ColumnTransformer and saves it using joblib
+# - Ensures the same preprocessing is used during training and prediction
+#
+# -----------------------------------------------------------------------------
+# 2. MACHINE LEARNING MODELS
+# -----------------------------------------------------------------------------
+# The system trains three models:
+#   1. Linear Regression          → Baseline model
+#   2. RandomForestRegressor      → Strong classical model
+#   3. Deep Neural Network (Keras) → Main production model
+#
+# Neural Network features:
+#   - Multiple Dense layers
+#   - BatchNormalization
+#   - Dropout regularization
+#   - Adam optimizer
+#   - EarlyStopping + ReduceLROnPlateau
+#   - Saved to artifacts/best_model.keras
+#
+# Models are loaded from disk if available (no retraining needed).
+#
+# -----------------------------------------------------------------------------
+# 3. PREDICTION PIPELINE FLOW
+# -----------------------------------------------------------------------------
+# 1) Receives “friendly inputs” from frontend (e.g., hours_studied)
+# 2) Maps them to dataset columns (Hours_Studied)
+# 3) Missing values filled using dataset mean/mode
+# 4) Uses saved preprocessor to transform the row
+# 5) Neural network predicts final exam score (0–100)
+# 6) Prediction is interpreted into:
+#       • Excellent
+#       • Very Good
+#       • Needs Improvement
+#       • At Risk
+# 7) AI-generated insights created based on inputs (study time, sleep, attendance)
+#
+# -----------------------------------------------------------------------------
+# 4. BACKEND (FLASK)
+# -----------------------------------------------------------------------------
+# Flask is the central controller that:
+#   - Serves API routes
+#   - Serves frontend HTML files
+#   - Handles authentication
+#   - Performs predictions
+#   - Computes analytics
+#   - Connects to MongoDB
+#   - Provides CSV export and metrics endpoints
+#
+# Protected pages use login_required via JWT.
+#
+# -----------------------------------------------------------------------------
+# 5. AUTHENTICATION (JWT)
+# -----------------------------------------------------------------------------
+# - Users can register / login
+# - Passwords hashed using SHA-256
+# - JWT token created and stored in HttpOnly cookies
+# - Decorators:
+#       • login_required        → Protects frontend pages
+#       • api_login_required    → Protects API endpoints
+#
+# Ensures secure access and prevents unauthorized predictions.
+#
+# -----------------------------------------------------------------------------
+# 6. MONGODB STORAGE
+# -----------------------------------------------------------------------------
+# MongoDB stores:
+#   - Users (full name, username, email, hashed password)
+#   - Predictions (score, inputs, level, timestamp)
+#
+# Unique indexes prevent duplicate accounts.
+#
+# Prediction documents include:
+#   • user_id
+#   • pred (0–100)
+#   • level (performance category)
+#   • friendly input fields
+#   • created_at timestamp
+#
+# -----------------------------------------------------------------------------
+# 7. ANALYTICS ENGINE
+# -----------------------------------------------------------------------------
+# The backend generates statistics for the dashboard:
+#   - Average grade
+#   - Level distribution (Excellent → At Risk)
+#   - Monthly prediction trends
+#   - Feature importance (RandomForest)
+#   - Neural Network training history
+#   - Dataset-level insights (correlations, attendance impact, study hours impact)
+#   - Personal recommendations based on user history
+#   - Grade improvement plan
+#   - Performance benchmarks (user vs dataset)
+#
+# -----------------------------------------------------------------------------
+# 8. FRONTEND INTEGRATION
+# -----------------------------------------------------------------------------
+# Frontend pages (served from /web) send requests via fetch():
+#
+#   /api/predict
+#   /api/save
+#   /api/analytics
+#   /api/feature_importance
+#   /api/user
+#   /api/user/stats
+#   /api/personal_recommendations
+#
+# Pages include:
+#   - Dashboard
+#   - Insights
+#   - Analytics
+#   - Records
+#   - Profile
+#
+# -----------------------------------------------------------------------------
+# 9. END-TO-END SYSTEM FLOW
+# -----------------------------------------------------------------------------
+# 1) User logs in → JWT token issued
+# 2) User enters prediction data
+# 3) Backend maps friendly inputs → dataset columns
+# 4) Preprocessor transforms input row
+# 5) Neural network predicts final exam score
+# 6) Insights + interpretation generated
+# 7) Prediction saved in MongoDB
+# 8) Dashboard analytics update automatically
+#
+# Full loop:
+#
+#   Frontend → Flask → Preprocessor → ML Model → MongoDB → Analytics → Frontend
+#
+# -----------------------------------------------------------------------------
+# 10. SUMMARY
+# -----------------------------------------------------------------------------
+# This file represents a complete AI platform with:
+#   - Machine Learning
+#   - Deep Learning
+#   - Data preprocessing
+#   - API design
+#   - Authentication
+#   - Database integration
+#   - User analytics
+#   - Visualization preparation
+#
+# All modules are connected to form a production-like student performance prediction system.
+#
+# -----------------------------------------------------------------------------
 
        #####################
      ##                   ##
@@ -139,10 +199,6 @@
    ##                       ##
      ##                 ##
        #################
-
-
-
-# BY XZ - BM7
 
 
 

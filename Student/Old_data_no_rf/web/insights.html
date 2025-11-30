@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+<meta charset="utf-8">
+<title>AI Insights | Student Performance Predictor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+<style>
+:root {
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --gradient: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+}
+
+[data-bs-theme="dark"] {
+    --primary: #4cc9f0;
+    --secondary: #4361ee;
+    --light: #2d2d2d;
+    --dark: #ffffff;
+    --gradient: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+}
+
+body {
+    background: var(--light);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+[data-bs-theme="dark"] .glass-card {
+    background: rgba(45, 45, 45, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.theme-switcher {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.theme-switcher:hover {
+    background: var(--border);
+}
+
+.insight-card {
+    border-left: 4px solid;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.insight-card:hover {
+    transform: translateX(5px);
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.gradient-bg {
+    background: var(--gradient);
+}
+
+.progress-custom {
+    height: 8px;
+    border-radius: 10px;
+    background: var(--border, #e9ecef);
+}
+
+.progress-custom .progress-bar {
+    border-radius: 10px;
+    transition: width 1s ease-in-out;
+}
+
+.impact-value {
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.correlation-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 12px;
+    background: var(--primary);
+    color: white;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(67, 97, 238, 0.1);
+    border-radius: 10px;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--dark);
+    opacity: 0.7;
+}
+
+.recommendation-card {
+    transition: all 0.3s ease;
+    border: none;
+    border-left: 4px solid transparent;
+}
+
+.recommendation-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.recommendation-high {
+    border-left-color: #dc3545;
+}
+
+.recommendation-medium {
+    border-left-color: #ffc107;
+}
+
+.recommendation-low {
+    border-left-color: #17a2b8;
+}
+
+.improvement-plan {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.improvement-plan .card {
+    background: rgba(255,255,255,0.95);
+    color: #333;
+}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light glass-card mb-4">
+    <div class="container">
+        <a class="navbar-brand nav-brand" href="/">
+            <i class="bi bi-graph-up-arrow me-2"></i>
+            EduPredict AI
+        </a>
+        
+        <div class="navbar-nav ms-auto d-flex align-items-center">
+            <div class="theme-switcher me-3" onclick="toggleTheme()">
+                <i class="bi bi-sun-fill" id="themeIcon"></i>
+            </div>
+            <a class="nav-link" href="/">
+                <i class="bi bi-house me-1"></i>Home
+            </a>
+            <a class="nav-link active" href="/insights">
+                <i class="bi bi-lightbulb me-1"></i>AI Insights
+            </a>
+            <a class="nav-link" href="/dashboard">
+                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+            </a>
+            <a class="nav-link" href="/analytics">
+                <i class="bi bi-bar-chart me-1"></i>Analytics
+            </a>
+            <a class="nav-link" href="/model_visuals">
+                <i class="bi bi-bar-chart-line me-1"></i>Visuals
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <div class="feature-icon gradient-bg text-white mx-auto">
+                <i class="bi bi-robot"></i>
+            </div>
+            <h1 class="display-5 fw-bold">AI Insights & Analytics</h1>
+            <p class="lead text-muted">Analysis using Linear Regression & Neural Networks</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="glass-card p-4">
+                <h4 class="mb-4">
+                    <i class="bi bi-lightbulb text-warning me-2"></i>
+                    Dataset Correlations
+                    <span class="correlation-badge ms-2">Global Trends</span>
+                </h4>
+                
+                <div id="realInsightsContainer">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading insights...</span>
+                        </div>
+                        <p class="text-muted mt-2">Analyzing dataset patterns...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 mt-4">
+                <h4 class="mb-4">
+                    <i class="bi bi-check-circle text-success me-2"></i>
+                    Personalized Recommendations
+                    <span class="correlation-badge ms-2">AI Generated</span>
+                </h4>
+
+                <div id="personalizedRecommendations">
+                    <div class="text-center">Loading recommendations...</div>
+                </div>
+            </div>
+
+            <div class="improvement-plan p-4 mt-4 rounded-4">
+                <h4 class="mb-4 text-white">
+                    <i class="bi bi-graph-up me-2"></i>
+                    Targeted Improvement Strategy
+                </h4>
+                <div id="improvementPlanContainer">
+                    <div class="text-center text-white">Generating plan...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="glass-card p-4">
+                <h5 class="mb-4">
+                    <i class="bi bi-cpu me-2"></i>
+                    Model Accuracy
+                    <span class="correlation-badge ms-2">Linear Regression</span>
+                </h5>
+
+                <div class="mb-4">
+                    <h6>Prediction Confidence (R²)</h6>
+                    <div class="progress progress-custom mb-2">
+                        <div class="progress-bar bg-success" id="accuracyProgress" style="width: 0%">0%</div>
+                    </div>
+                    <small class="text-muted" id="accuracyDescription">Calculating based on test set...</small>
+                </div>
+
+                <div class="mb-4">
+                    <h6>Top Features <span class="badge bg-secondary">Weights (Coeffs)</span></h6>
+                    <div id="featureImportanceContainer">
+                        <div class="text-center">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 mt-4">
+                <h5 class="mb-4">
+                    <i class="bi bi-speedometer2 me-2"></i>
+                    Model Metrics
+                    <span class="correlation-badge ms-2">LR Test Data (20%)</span>
+                </h5>
+
+                <div class="stats-grid" id="performanceMetrics">
+                    <div class="stat-item">
+                        <div class="stat-value" id="r2Value">--</div>
+                        <div class="stat-label">R² Score</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="lossValue">--</div>
+                        <div class="stat-label">MSE (Loss)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="maeValue">--</div>
+                        <div class="stat-label">MAE</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="mseValue">--</div>
+                        <div class="stat-label">MSE</div>
+                    </div>
+                    <div class="stat-item" style="grid-column: span 2;">
+                        <div class="stat-value" id="rmseValue">--</div>
+                        <div class="stat-label">RMSE (Root Mean Sq Error)</div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-light mt-3 mb-0 border">
+                    <small class="text-muted"><i class="bi bi-info-circle me-1"></i> Comparison with Neural Network available in Analytics.</small>
+                </div>
+            </div>
+
+            <div class="glass-card p-4 mt-4">
+                <h5 class="mb-4">
+                    <i class="bi bi-database me-2"></i>
+                    Dataset Overview
+                </h5>
+                <div id="datasetStatsContainer">
+                    <div class="text-center">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let currentTheme = localStorage.getItem('theme') || 'light';
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    const themeIcon = document.getElementById('themeIcon');
+    themeIcon.className = theme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+    localStorage.setItem('theme', theme);
+}
+
+function toggleTheme() {
+    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    applyTheme(currentTheme);
+}
+
+// 1. Load Dataset Correlations and General Insights
+async function loadRealInsights() {
+    try {
+        const response = await fetch('/api/dataset_stats');
+        const data = await response.json();
+        
+        if (data.ok) {
+            const insightsContainer = document.getElementById('realInsightsContainer');
+            let insightsHTML = '';
+            
+            // Check for G2 Correlation
+            if (data.correlations && data.correlations.G2) {
+                const g2Corr = (data.correlations.G2 * 100).toFixed(1);
+                insightsHTML += `
+                    <div class="insight-card alert alert-info">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-graph-up-arrow me-3 fs-3"></i>
+                            <div>
+                                <h5 class="alert-heading">Strongest Predictor</h5>
+                                <p class="mb-0">Second Exam (G2) has a <strong>${g2Corr}% correlation</strong> with the final grade.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Check for Study Time Impact
+            if (data.study_time_impact) {
+                const studyImpact = data.study_time_impact;
+                if (studyImpact[4] && studyImpact[1]) {
+                    const diff = (studyImpact[4] - studyImpact[1]).toFixed(1);
+                    insightsHTML += `
+                        <div class="insight-card alert alert-success">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-clock me-3 fs-3"></i>
+                                <div>
+                                    <h5 class="alert-heading">Study Time ROI</h5>
+                                    <p class="mb-0">Students studying 4+ hours score <strong>${diff} points higher</strong> on average than those studying <2 hours.</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            insightsContainer.innerHTML = insightsHTML || '<p class="text-center">No significant correlations found.</p>';
+        }
+    } catch (error) {
+        console.error('Failed to load insights:', error);
+    }
+}
+
+// 2. Load Personalized AI Recommendations
+async function loadPersonalizedRecommendations() {
+    try {
+        const response = await fetch('/api/personal_recommendations');
+        const data = await response.json();
+        
+        if (data.ok && data.recommendations) {
+            const container = document.getElementById('personalizedRecommendations');
+            let html = '<div class="row g-3">';
+            
+            data.recommendations.forEach(rec => {
+                let badgeColor = rec.priority === 'high' ? 'bg-danger' : rec.priority === 'medium' ? 'bg-warning' : 'bg-info';
+                html += `
+                    <div class="col-md-6">
+                        <div class="card h-100 recommendation-card recommendation-${rec.priority}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <i class="bi ${rec.icon} fs-2 text-primary"></i>
+                                    <span class="badge ${badgeColor} align-self-start">${rec.priority.toUpperCase()}</span>
+                                </div>
+                                <h5>${rec.title}</h5>
+                                <p class="text-muted small">${rec.message}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+    } catch (error) {
+        console.error(error);
+        document.getElementById('personalizedRecommendations').innerHTML = '<p class="text-danger">Failed to load recommendations.</p>';
+    }
+}
+
+// 3. Load Improvement Plan
+async function loadImprovementPlan() {
+    try {
+        const response = await fetch('/api/grade_improvement_plan');
+        const data = await response.json();
+        
+        if (data.ok && data.plan) {
+            const plan = data.plan;
+            const container = document.getElementById('improvementPlanContainer');
+            
+            let html = `<div class="card"><div class="card-body">`;
+            html += `<h5 class="card-title text-dark">Goal: Reach ${plan.target_grade}/20</h5>`;
+            html += `<p class="text-muted small">Estimated Timeline: ${plan.timeframe}</p>`;
+            
+            plan.actions.forEach((action, idx) => {
+                html += `
+                    <div class="d-flex align-items-center mb-2 border-bottom pb-2">
+                        <span class="badge bg-primary me-2">${idx+1}</span>
+                        <div class="flex-grow-1">
+                            <strong class="text-dark d-block">${action.area}</strong>
+                            <span class="text-muted small">${action.action}</span>
+                        </div>
+                        <span class="badge bg-success ms-2">${action.impact}</span>
+                    </div>
+                `;
+            });
+            html += `</div></div>`;
+            container.innerHTML = html;
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+// 4. Load Feature Importance (From Linear Regression Coefficients)
+async function loadFeatureImportance() {
+    try {
+        const response = await fetch('/api/feature_importance');
+        const data = await response.json();
+        
+        if (data.ok && data.feature_importance) {
+            const container = document.getElementById('featureImportanceContainer');
+            let html = '';
+            
+            // Get top 5 sorted features (by absolute coefficient value)
+            // The backend api_feature_importance returns a list of objects now: [{feature: 'x', importance: 0.5}, ...]
+            // Or if it returns sorted dict, we handle array iteration
+            
+            const features = data.feature_importance; // Assuming backend returns sorted array of objects as per last code
+            
+            // Handling if backend returns array or dict (based on previous iterations)
+            let sorted = [];
+            if (Array.isArray(features)) {
+                sorted = features.slice(0, 5);
+            } else if (typeof features === 'object') {
+                sorted = Object.entries(features).map(([k, v]) => ({feature: k, importance: v})).slice(0, 5);
+            }
+
+            sorted.forEach(item => {
+                // Normalize for display purposes since coefficients can be small
+                // For visualization, we can just show the raw value or a relative bar
+                // Since this is linear regression, values are not percentages, but we will treat them relatively for the bar
+                
+                // Finding max for scaling if needed, or just assuming max importance ~ 5-10 for display
+                // Simple display:
+                
+                let val = item.importance || 0;
+                let name = item.feature;
+                
+                // Heuristic scaling for visual bar (Linear Regression coeffs vary)
+                let visualPercent = Math.min(100, Math.abs(val) * 20); 
+
+                html += `
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small">
+                            <span>${name}</span>
+                            <span>${val.toFixed(3)}</span>
+                        </div>
+                        <div class="progress progress-custom">
+                            <div class="progress-bar bg-primary" style="width: ${visualPercent}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+// 5. Load Performance Metrics (R2, MSE, etc.)
+async function loadPerformanceMetrics() {
+    try {
+        // Fetching from analytics because that's where model_performance is stored in the new backend
+        const response = await fetch('/api/analytics');
+        const data = await response.json();
+        
+        if (data.ok && data.stats && data.stats.model_performance) {
+            // Using Linear Regression metrics as it is the primary model now
+            const metrics = data.stats.model_performance['Linear Regression'];
+            
+            if (metrics) {
+                const r2Percent = (metrics.R2 * 100).toFixed(1);
+                
+                // Update Progress Bar
+                const progressBar = document.getElementById('accuracyProgress');
+                progressBar.style.width = `${Math.max(0, r2Percent)}%`;
+                progressBar.innerText = `${r2Percent}%`;
+                
+                const accDesc = document.getElementById('accuracyDescription');
+                if (metrics.R2 > 0.8) {
+                    accDesc.innerText = "Excellent model accuracy (R² Score)";
+                    progressBar.className = "progress-bar bg-success";
+                } else if (metrics.R2 > 0.5) {
+                    accDesc.innerText = "Moderate model accuracy";
+                    progressBar.className = "progress-bar bg-warning";
+                } else {
+                    accDesc.innerText = "Model needs optimization";
+                    progressBar.className = "progress-bar bg-danger";
+                }
+
+                // Update Numeric Stats
+                document.getElementById('r2Value').innerText = metrics.R2.toFixed(4);
+                document.getElementById('maeValue').innerText = metrics.MAE.toFixed(3);
+                document.getElementById('mseValue').innerText = metrics.MSE.toFixed(3);
+                document.getElementById('rmseValue').innerText = metrics.RMSE.toFixed(3);
+                document.getElementById('lossValue').innerText = metrics.MSE.toFixed(3);
+            }
+        }
+    } catch (error) {
+        console.error("Error fetching metrics:", error);
+    }
+}
+
+// 6. Load Dataset Stats
+async function loadDatasetStats() {
+    try {
+        const response = await fetch('/api/dataset_stats');
+        const data = await response.json();
+        if(data.ok && data.stats) {
+            const s = data.stats;
+            document.getElementById('datasetStatsContainer').innerHTML = `
+                <ul class="list-group list-group-flush bg-transparent">
+                    <li class="list-group-item bg-transparent d-flex justify-content-between">
+                        <span>Total Samples</span>
+                        <strong>${s.total_students}</strong>
+                    </li>
+                    <li class="list-group-item bg-transparent d-flex justify-content-between">
+                        <span>Avg Final Grade</span>
+                        <strong>${s.average_final_grade} / 20</strong>
+                    </li>
+                    <li class="list-group-item bg-transparent d-flex justify-content-between">
+                        <span>Excellent Students</span>
+                        <strong class="text-success">${s.excellent_students}</strong>
+                    </li>
+                    <li class="list-group-item bg-transparent d-flex justify-content-between">
+                        <span>At Risk Students</span>
+                        <strong class="text-danger">${s.at_risk_students}</strong>
+                    </li>
+                </ul>
+            `;
+        }
+    } catch (e) { console.error(e); }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    applyTheme(currentTheme);
+    loadRealInsights();
+    loadPersonalizedRecommendations();
+    loadImprovementPlan();
+    loadFeatureImportance();
+    loadPerformanceMetrics(); 
+    loadDatasetStats();
+});
+</script>
+</body>
+</html>

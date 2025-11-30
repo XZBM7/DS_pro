@@ -1,7 +1,7 @@
 
 
-# BY XZ - BM7 (ADAPTED FOR NEW DATASET)
 
+# BY XZ - BM7 (ADAPTED FOR NEW DATASET NO RF)
 
 
 
@@ -220,7 +220,6 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
 import tensorflow as tf
 from tensorflow.keras import layers, models, callbacks
 from flask import Flask, request, jsonify, send_from_directory, Response, redirect, url_for
@@ -231,7 +230,7 @@ import plotly.graph_objects as go
 import plotly.io as pio
 from plotly.subplots import make_subplots
 
-DATA_FILE = r"Student/data/StudentPerformanceFactors.csv"
+DATA_FILE = r"D:\Python\DS1\Student\data\StudentPerformanceFactors.csv"
 ARTIFACTS_DIR = Path("./artifacts")
 WEB_DIR = Path("./web")
 MODEL_PATH = ARTIFACTS_DIR / "best_model.keras"
@@ -274,7 +273,6 @@ if not os.path.exists(DATA_FILE):
 df = pd.read_csv(DATA_FILE)
 df = df.drop_duplicates().ffill()
 
-# NEW TARGET
 target = "Exam_Score"
 if target not in df.columns:
     print("ERROR: Target column 'Exam_Score' not found in dataset")
@@ -311,18 +309,10 @@ X_train, X_test, y_train, y_test = train_test_split(X_processed, y, test_size=0.
 
 model_performance = {}
 
-print("Training classical models...")
+print("Training classical models (Linear Regression only)...")
 lr = LinearRegression().fit(X_train, y_train)
-rf = RandomForestRegressor(
-    n_estimators=400,
-    max_depth=18,
-    min_samples_split=2,
-    min_samples_leaf=1,
-    random_state=42
-).fit(X_train, y_train)
 
 lr_pred = lr.predict(X_test)
-rf_pred = rf.predict(X_test)
 
 model_performance['Linear Regression'] = {
     'MAE': mean_absolute_error(y_test, lr_pred),
@@ -330,15 +320,9 @@ model_performance['Linear Regression'] = {
     'R2': r2_score(y_test, lr_pred)
 }
 
-model_performance['Random Forest'] = {
-    'MAE': mean_absolute_error(y_test, rf_pred),
-    'MSE': mean_squared_error(y_test, rf_pred),
-    'R2': r2_score(y_test, rf_pred)
-}
-
 print("Classical Models Performance:")
-for model, metrics in model_performance.items():
-    print(f"{model}: MAE={metrics['MAE']:.3f}, R²={metrics['R2']:.3f}")
+for model_name, metrics in model_performance.items():
+    print(f"{model_name}: MAE={metrics['MAE']:.3f}, R²={metrics['R2']:.3f}")
 
 input_dim = X_train.shape[1]
 
@@ -371,8 +355,6 @@ def build_nn(input_dim):
     )
     return m
 
-
-
 print("Setting up Neural Network...")
 if MODEL_PATH.exists():
     model = tf.keras.models.load_model(MODEL_PATH)
@@ -380,23 +362,22 @@ if MODEL_PATH.exists():
 else:
     model = build_nn(input_dim)
     es = callbacks.EarlyStopping(
-    monitor='val_loss',
-    patience=20,
-    restore_best_weights=True
-)
+        monitor='val_loss',
+        patience=20,
+        restore_best_weights=True
+    )
     rlr = callbacks.ReduceLROnPlateau(monitor='val_loss', patience=5, factor=0.5)
     cp = callbacks.ModelCheckpoint(filepath=str(MODEL_PATH), save_best_only=True)
 
     print("Training Neural Network...")
     history = model.fit(
-    X_train, y_train,
-    validation_split=0.15,
-    epochs=250,
-    batch_size=64,
-    callbacks=[es, rlr, cp],
-    verbose=1
-)
-
+        X_train, y_train,
+        validation_split=0.15,
+        epochs=250,
+        batch_size=64,
+        callbacks=[es, rlr, cp],
+        verbose=1
+    )
 
     with open(ARTIFACTS_DIR / "training_history.json", "w") as f:
         json.dump(history.history, f)
@@ -690,7 +671,7 @@ def api_model_plot_data():
                 y_pred = list(map(float, np.array(pred_arr).flatten()))
             except:
                 try:
-                    pred_arr = globals()['rf'].predict(Xt)
+                    pred_arr = globals()['lr'].predict(Xt)
                     y_pred = list(map(float, np.array(pred_arr).flatten()))
                 except:
                     y_pred = []
@@ -698,9 +679,9 @@ def api_model_plot_data():
         if y_true and y_pred and len(y_true) == len(y_pred):
             residuals = [float(t - p) for t, p in zip(y_true, y_pred)]
 
-        rf_model = globals().get('rf')
+        lr_model = globals().get('lr')
         pre = globals().get('preprocessor')
-        if rf_model is not None and pre is not None:
+        if lr_model is not None and pre is not None:
             try:
                 cat_feats = pre.named_transformers_['cat'].get_feature_names_out(cat_cols)
             except:
@@ -708,10 +689,13 @@ def api_model_plot_data():
                     cat_feats = pre.named_transformers_['cat'].get_feature_names(cat_cols)
                 except:
                     cat_feats = []
+            
             feat_names = num_cols + list(cat_feats)
-            feat_importances = list(map(float, rf_model.feature_importances_))
+            feat_importances = list(map(float, np.abs(lr_model.coef_)))
+            
             for f, v in zip(feat_names, feat_importances):
                 feature_pairs.append({"feature": f, "importance": v})
+            
             feature_pairs = sorted(feature_pairs, key=lambda x: x['importance'], reverse=True)
 
         hpath = ARTIFACTS_DIR / 'training_history.json'
@@ -1238,7 +1222,8 @@ def api_feature_importance():
             except:
                 cat_features = []
         feature_names = num_cols + list(cat_features)
-        importance_scores = rf.feature_importances_
+        
+        importance_scores = np.abs(lr.coef_)
         
         original_feature_importance = {}
         
@@ -1503,7 +1488,6 @@ def api_performance_benchmarks():
         })
 
 def calculate_improvement_trend(predictions):
-    """Calculate if user scores are improving over time"""
     if len(predictions) < 3:
         return "insufficient_data"
     
@@ -1758,8 +1742,8 @@ def api_model_metrics():
     try:
         nn = model_performance.get("Neural Network", {})
         lr = model_performance.get("Linear Regression", {})
-        rf = model_performance.get("Random Forest", {})
-
+        
+        
         mae = nn.get("MAE", 0)
         mse = nn.get("MSE", 0)
         r2  = nn.get("R2", 0)
@@ -1798,7 +1782,7 @@ def api_model_metrics():
 if __name__ == "__main__":
     print("🚀 Student Performance Predictor Server Starting...")
     print("🔐 JWT Authentication Enabled")
-    print("📊 Model Performance Summary:")
+    print("📊 Model Performance Summary (NN & LR only):")
     for model_name, metrics in model_performance.items():
         print(f"   {model_name}: R² = {metrics['R2']:.3f}")
     

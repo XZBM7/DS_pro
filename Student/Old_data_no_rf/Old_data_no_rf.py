@@ -1,8 +1,11 @@
 
 
-# BY XZ - BM7 (ADAPTED FOR NEW DATASET)
 
 
+
+
+
+# BY XZ - BM7 (ADAPTED FOR OLD DATASET NO RF)
 
 
        #####################
@@ -200,6 +203,8 @@
 
 
 
+
+
 import os
 import sys
 import json
@@ -220,18 +225,13 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
 import tensorflow as tf
 from tensorflow.keras import layers, models, callbacks
 from flask import Flask, request, jsonify, send_from_directory, Response, redirect, url_for
 import jwt
 from functools import wraps
-import plotly.express as px
-import plotly.graph_objects as go
-import plotly.io as pio
-from plotly.subplots import make_subplots
 
-DATA_FILE = r"Student/data/StudentPerformanceFactors.csv"
+DATA_FILE = r"D:\Python\Student\data\student-por.csv"
 ARTIFACTS_DIR = Path("./artifacts")
 WEB_DIR = Path("./web")
 MODEL_PATH = ARTIFACTS_DIR / "best_model.keras"
@@ -252,7 +252,7 @@ app = Flask(__name__, static_folder=str(WEB_DIR))
 THEMES = {
     'light': {
         'bg': '#ffffff',
-        'card': '#f8f9fa',
+        'card': '#f8f9fa', 
         'text': '#212529',
         'border': '#dee2e6',
         'primary': '#4361ee'
@@ -260,7 +260,7 @@ THEMES = {
     'dark': {
         'bg': '#1a1a1a',
         'card': '#2d2d2d',
-        'text': '#ffffff',
+        'text': '#ffffff', 
         'border': '#404040',
         'primary': '#4cc9f0'
     }
@@ -272,23 +272,23 @@ if not os.path.exists(DATA_FILE):
     sys.exit(1)
 
 df = pd.read_csv(DATA_FILE)
-df = df.drop_duplicates().ffill()
+df = df[df['G3'] != 0]
 
-# NEW TARGET
-target = "Exam_Score"
+df['G_Avg'] = (df['G1'] + df['G2']) / 2
+df['G_Improvement'] = df['G2'] - df['G1']
+df['Risk_Factor'] = (df['failures'] * 2) + df['absences']
+
+target = "G3"
 if target not in df.columns:
-    print("ERROR: Target column 'Exam_Score' not found in dataset")
+    print("ERROR: Target column G3 not found")
     sys.exit(1)
 
 X_df = df.drop(columns=[target])
 y = df[target]
-
-cat_cols = X_df.select_dtypes(include=['object', 'category']).columns.tolist()
+cat_cols = X_df.select_dtypes(include=['object']).columns.tolist()
 num_cols = X_df.select_dtypes(include=['int64', 'float64']).columns.tolist()
 
-print("Detected numeric columns:", num_cols)
-print("Detected categorical columns:", cat_cols)
-
+print("Initializing preprocessor...")
 from sklearn import __version__ as skl
 _major = int(skl.split(".")[0])
 _minor = int(skl.split(".")[1]) if len(skl.split("."))>1 else 0
@@ -311,67 +311,44 @@ X_train, X_test, y_train, y_test = train_test_split(X_processed, y, test_size=0.
 
 model_performance = {}
 
-print("Training classical models...")
-lr = LinearRegression().fit(X_train, y_train)
-rf = RandomForestRegressor(
-    n_estimators=400,
-    max_depth=18,
-    min_samples_split=2,
-    min_samples_leaf=1,
-    random_state=42
-).fit(X_train, y_train)
+print("Training Linear Regression model...")
+lr_model = LinearRegression()
+lr_model.fit(X_train, y_train)
 
-lr_pred = lr.predict(X_test)
-rf_pred = rf.predict(X_test)
+lr_pred = lr_model.predict(X_test)
+
+lr_mae = mean_absolute_error(y_test, lr_pred)
+lr_mse = mean_squared_error(y_test, lr_pred)
+lr_rmse = np.sqrt(lr_mse)
+lr_r2 = r2_score(y_test, lr_pred)
 
 model_performance['Linear Regression'] = {
-    'MAE': mean_absolute_error(y_test, lr_pred),
-    'MSE': mean_squared_error(y_test, lr_pred),
-    'R2': r2_score(y_test, lr_pred)
+    'MAE': lr_mae,
+    'MSE': lr_mse,
+    'RMSE': lr_rmse,
+    'R2': lr_r2
 }
 
-model_performance['Random Forest'] = {
-    'MAE': mean_absolute_error(y_test, rf_pred),
-    'MSE': mean_squared_error(y_test, rf_pred),
-    'R2': r2_score(y_test, rf_pred)
-}
-
-print("Classical Models Performance:")
-for model, metrics in model_performance.items():
-    print(f"{model}: MAE={metrics['MAE']:.3f}, R²={metrics['R2']:.3f}")
+print(f"Linear Regression Performance: R²={lr_r2:.4f}")
 
 input_dim = X_train.shape[1]
 
 def build_nn(input_dim):
-    m = models.Sequential([
-        layers.Input(shape=(input_dim,)),
-
-        layers.Dense(256, activation='relu'),
-        layers.BatchNormalization(),
-        layers.Dropout(0.25),
-
-        layers.Dense(128, activation='relu'),
-        layers.BatchNormalization(),
-        layers.Dropout(0.20),
-
-        layers.Dense(64, activation='relu'),
-        layers.BatchNormalization(),
-
-        layers.Dense(32, activation='relu'),
-
-        layers.Dense(1)
-    ])
-
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.0015)
-
-    m.compile(
-        optimizer=optimizer,
-        loss='mse',
-        metrics=[tf.keras.metrics.RootMeanSquaredError()]
-    )
+    m = models.Sequential()
+    m.add(layers.Input(shape=(input_dim,)))
+    m.add(layers.Dense(256))
+    m.add(layers.LeakyReLU(alpha=0.1))
+    m.add(layers.BatchNormalization())
+    m.add(layers.Dropout(0.2))
+    m.add(layers.Dense(128))
+    m.add(layers.LeakyReLU(alpha=0.1))
+    m.add(layers.BatchNormalization())
+    m.add(layers.Dropout(0.1))
+    m.add(layers.Dense(64, activation='relu'))
+    m.add(layers.Dense(32, activation='relu'))
+    m.add(layers.Dense(1))
+    m.compile(optimizer='adam', loss='mse', metrics=[tf.keras.metrics.RootMeanSquaredError()])
     return m
-
-
 
 print("Setting up Neural Network...")
 if MODEL_PATH.exists():
@@ -379,40 +356,44 @@ if MODEL_PATH.exists():
     print("Loaded model from cache:", MODEL_PATH)
 else:
     model = build_nn(input_dim)
-    es = callbacks.EarlyStopping(
-    monitor='val_loss',
-    patience=20,
-    restore_best_weights=True
-)
+    es = callbacks.EarlyStopping(monitor='val_loss', patience=20, restore_best_weights=True)
     rlr = callbacks.ReduceLROnPlateau(monitor='val_loss', patience=5, factor=0.5)
     cp = callbacks.ModelCheckpoint(filepath=str(MODEL_PATH), save_best_only=True)
 
     print("Training Neural Network...")
     history = model.fit(
-    X_train, y_train,
-    validation_split=0.15,
-    epochs=250,
-    batch_size=64,
-    callbacks=[es, rlr, cp],
-    verbose=1
-)
-
+        X_train, y_train,
+        validation_split=0.15,
+        epochs=300,
+        batch_size=32,
+        callbacks=[es, rlr, cp],
+        verbose=0
+    )
 
     with open(ARTIFACTS_DIR / "training_history.json", "w") as f:
         json.dump(history.history, f)
 
     print("Model trained and saved to:", MODEL_PATH)
 
-nn_preds = model.predict(X_test).flatten()
+nn_preds = model.predict(X_test, verbose=0).flatten()
+nn_mae = mean_absolute_error(y_test, nn_preds)
+nn_mse = mean_squared_error(y_test, nn_preds)
+nn_rmse = np.sqrt(nn_mse)
+nn_r2 = r2_score(y_test, nn_preds)
+
 model_performance['Neural Network'] = {
-    'MAE': mean_absolute_error(y_test, nn_preds),
-    'MSE': mean_squared_error(y_test, nn_preds),
-    'R2': r2_score(y_test, nn_preds)
+    'MAE': nn_mae,
+    'MSE': nn_mse,
+    'RMSE': nn_rmse,
+    'R2': nn_r2
 }
 
-print("Neural Network Performance:")
-print(f"MAE: {model_performance['Neural Network']['MAE']:.3f}")
-print(f"R²: {model_performance['Neural Network']['R2']:.3f}")
+print("\n" + "█"*60)
+print("📊 DETAILED MODEL METRICS (Comparing LR vs NN)")
+print("█"*60)
+for name, metrics in model_performance.items():
+    print(f" {name}: R² = {metrics['R2']:.4f}")
+print("█"*60 + "\n")
 
 try:
     mongo = MongoClient(MONGO_URI)
@@ -429,7 +410,6 @@ except Exception as e:
     print("MongoDB connection failed:", e)
     coll = None
     users_coll = None
-
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -496,26 +476,23 @@ def api_login_required(f):
     return decorated_function
 
 friendly_to_dataset = {
-    "hours_studied": "Hours_Studied",
-    "attendance": "Attendance",
-    "previous_scores": "Previous_Scores",
-    "motivation_level": "Motivation_Level",
-    "sleep_hours": "Sleep_Hours",
-    "internet_access": "Internet_Access",
-    "tutoring_sessions": "Tutoring_Sessions",
-    "parental_involvement": "Parental_Involvement",
-    "teacher_quality": "Teacher_Quality",
-    "physical_activity": "Physical_Activity"
+    "first_exam_grade": "G1",
+    "second_exam_grade": "G2",
+    "study_time": "studytime",
+    "past_failures": "failures",
+    "absences": "absences",
+    "schoolsup": "schoolsup",
+    "internet": "internet"
 }
 
-def clamp_score(v):
+def clamp_grade(v):
     try:
-        fv = float(v)
+        iv = int(float(v))
     except:
         return None
-    if fv < 0: return 0.0
-    if fv > 100: return 100.0
-    return fv
+    if iv < 1: return 1
+    if iv > 20: return 20
+    return iv
 
 def predict_row_friendly(input_dict):
     row = {}
@@ -523,149 +500,110 @@ def predict_row_friendly(input_dict):
         if col in num_cols:
             row[col] = float(X_df[col].mean())
         else:
-            try:
-                row[col] = X_df[col].mode().iloc[0]
-            except:
-                row[col] = X_df[col].iloc[0]
+            row[col] = X_df[col].mode().iloc[0]
     
     for friendly, val in input_dict.items():
         if friendly not in friendly_to_dataset:
             continue
         ds_col = friendly_to_dataset[friendly]
-        if ds_col in num_cols:
-            try:
-                if ds_col.lower().find('score') >= 0 or ds_col.lower().find('exam') >= 0:
-                    clamped = clamp_score(val)
-                    if clamped is None:
-                        row[ds_col] = float(X_df[ds_col].mean())
-                    else:
-                        row[ds_col] = clamped
-                else:
-                    row[ds_col] = float(val)
-            except:
-                pass
+        if ds_col in ["G1","G2"]:
+            clamped = clamp_grade(val)
+            if clamped is None:
+                clamped = int(round(float(X_df[ds_col].mean())))
+            row[ds_col] = clamped
         else:
-            row[ds_col] = val
+            if ds_col in num_cols:
+                try:
+                    row[ds_col] = float(val)
+                except:
+                    pass
+            else:
+                row[ds_col] = val
     
+    g1 = row.get('G1', 0)
+    g2 = row.get('G2', 0)
+    failures = row.get('failures', 0)
+    absences = row.get('absences', 0)
+    
+    row['G_Avg'] = (g1 + g2) / 2
+    row['G_Improvement'] = g2 - g1
+    row['Risk_Factor'] = (failures * 2) + absences
+
     df_row = pd.DataFrame([row], columns=list(X_df.columns))
     Xp = preprocessor.transform(df_row)
-    pred = float(model.predict(Xp).flatten()[0])
-    pred = max(0.0, min(100.0, float(pred)))
+    pred = float(lr_model.predict(Xp)[0])
+    pred = max(0.0, min(20.0, float(pred)))
     return round(pred, 2), row
 
 def interpret_grade(g):
-    if g >= 90:
+    if g >= 18:
         return {
             "level": "Excellent",
             "color": "#28a745",
             "icon": "bi-star-fill",
-            "explain": "Outstanding performance (90-100)"
+            "explain": "Outstanding performance (18-20)"
         }
-    if g >= 75:
+    if g >= 14:
         return {
             "level": "Very Good",
-            "color": "#17a2b8",
+            "color": "#17a2b8", 
             "icon": "bi-star-half",
-            "explain": "Strong performance (75-89)"
+            "explain": "Strong performance (14-17)"
         }
-    if g >= 50:
+    if g >= 10:
         return {
             "level": "Needs Improvement",
             "color": "#ffc107",
             "icon": "bi-exclamation-triangle",
-            "explain": "Average / needs improvement (50-74)"
+            "explain": "Average / needs improvement (10-13)"
         }
     return {
         "level": "At Risk",
         "color": "#dc3545",
         "icon": "bi-exclamation-octagon",
-        "explain": "Low performance — support recommended (<50)"
+        "explain": "Low performance — support recommended (<10)"
     }
 
 def generate_ai_insights(prediction_data):
     insights = []
     
-    hours = prediction_data.get('hours_studied', None)
-    try:
-        if hours is not None and float(hours) < 5:
-            insights.append({
-                "type": "warning",
-                "title": "Increase Study Time",
-                "message": "Studying fewer hours may limit performance. Aim for consistent study hours weekly.",
-                "icon": "bi-clock"
-            })
-    except:
-        pass
-
-    sleep = prediction_data.get('sleep_hours', None)
-    try:
-        if sleep is not None and float(sleep) < 6:
-            insights.append({
-                "type": "warning",
-                "title": "Improve Sleep",
-                "message": "Less than 6 hours of sleep can reduce concentration and retention.",
-                "icon": "bi-moon"
-            })
-    except:
-        pass
-
-    att = prediction_data.get('attendance', None)
-    try:
-        if att is not None and float(att) < 75:
-            insights.append({
-                "type": "danger",
-                "title": "Low Attendance",
-                "message": f"Attendance {att}% seems low — improving attendance often increases scores.",
-                "icon": "bi-calendar-x"
-            })
-    except:
-        pass
-
-    tut = prediction_data.get('tutoring_sessions', 0)
-    try:
-        if float(tut) >= 1:
-            insights.append({
-                "type": "info",
-                "title": "Tutoring Support",
-                "message": "Attending tutoring sessions is correlated with better scores.",
-                "icon": "bi-person-bounding-box"
-            })
-    except:
-        pass
-
-    if prediction_data.get('internet_access') in [False, 'no', 'No', 'false', 0, '0']:
+    study_time = prediction_data.get('study_time', 2)
+    if study_time <= 2:
         insights.append({
-            "type": "secondary",
-            "title": "Access to Resources",
-            "message": "Limited internet access may reduce ability to use online resources.",
-            "icon": "bi-wifi-off"
+            "type": "warning",
+            "title": "Study Time Optimization",
+            "message": "Consider increasing study time to improve performance",
+            "icon": "bi-clock"
         })
     
-    try:
-        mot = prediction_data.get('motivation_level', None)
-        if mot is not None and float(mot) < 5:
-            insights.append({
-                "type": "warning",
-                "title": "Motivation Boost",
-                "message": "Consider goal-setting and short-term rewards to increase motivation.",
-                "icon": "bi-lightbulb"
-            })
-    except:
-        pass
-
-    try:
-        tq = prediction_data.get('teacher_quality', None)
-        if tq is not None and float(tq) < 3:
-            insights.append({
-                "type": "info",
-                "title": "Teacher Support",
-                "message": "Lower teacher quality rating suggests seeking supplemental resources or support.",
-                "icon": "bi-person-check"
-            })
-    except:
-        pass
-
+    absences = prediction_data.get('absences', 0)
+    if absences > 10:
+        insights.append({
+            "type": "danger",
+            "title": "Attendance Concern",
+            "message": f"High absences ({absences} days) may be affecting performance",
+            "icon": "bi-calendar-x"
+        })
+    
+    failures = prediction_data.get('past_failures', 0)
+    if failures > 0:
+        insights.append({
+            "type": "info",
+            "title": "Past Performance",
+            "message": f"Previous failures detected. Focus on foundational concepts",
+            "icon": "bi-lightbulb"
+        })
+    
+    if prediction_data.get('schoolsup') == 'no':
+        insights.append({
+            "type": "secondary",
+            "title": "Support Resources",
+            "message": "Consider utilizing school support services",
+            "icon": "bi-life-preserver"
+        })
+    
     return insights
+
 
 @app.route('/api/model_plot_data')
 @api_login_required
@@ -686,21 +624,18 @@ def api_model_plot_data():
                 y_true = []
 
             try:
-                pred_arr = globals()['model'].predict(Xt)
+                pred_arr = globals()['lr_model'].predict(Xt)
                 y_pred = list(map(float, np.array(pred_arr).flatten()))
             except:
-                try:
-                    pred_arr = globals()['rf'].predict(Xt)
-                    y_pred = list(map(float, np.array(pred_arr).flatten()))
-                except:
-                    y_pred = []
+                y_pred = []
 
         if y_true and y_pred and len(y_true) == len(y_pred):
             residuals = [float(t - p) for t, p in zip(y_true, y_pred)]
 
-        rf_model = globals().get('rf')
+        lr_est = globals()['lr_model']
         pre = globals().get('preprocessor')
-        if rf_model is not None and pre is not None:
+        
+        if lr_est is not None:
             try:
                 cat_feats = pre.named_transformers_['cat'].get_feature_names_out(cat_cols)
             except:
@@ -709,7 +644,7 @@ def api_model_plot_data():
                 except:
                     cat_feats = []
             feat_names = num_cols + list(cat_feats)
-            feat_importances = list(map(float, rf_model.feature_importances_))
+            feat_importances = list(map(float, np.abs(lr_est.coef_)))
             for f, v in zip(feat_names, feat_importances):
                 feature_pairs.append({"feature": f, "importance": v})
             feature_pairs = sorted(feature_pairs, key=lambda x: x['importance'], reverse=True)
@@ -824,7 +759,7 @@ def api_register():
         return jsonify({"ok": False, "error": "Full name must be at least 2 characters long"})
     
     if not re.match(r'^[a-zA-Z\u0600-\u06FF\s]+$', full_name):
-        return jsonify({"ok": False, "error": "Full name can only contain letters and spaces"} )
+        return jsonify({"ok": False, "error": "Full name can only contain letters and spaces"})
     
     if len(username) < 3:
         return jsonify({"ok": False, "error": "Username must be at least 3 characters long"})
@@ -908,7 +843,7 @@ def api_login():
     token = generate_jwt_token(user['_id'], user['username'])
     
     response = jsonify({
-        "ok": True,
+        "ok": True, 
         "message": "Login successful",
         "user": {
             "id": str(user['_id']),
@@ -922,7 +857,7 @@ def api_login():
         'access_token',
         token,
         httponly=True,
-        secure=False,
+        secure=False, 
         samesite='Lax',
         max_age=JWT_EXPIRY_HOURS * 3600
     )
@@ -938,11 +873,11 @@ def api_logout():
 @app.route("/api/user")
 def api_user():
     user = get_current_user()
-    if user and users_coll is not None:
+    if user and users_coll is not None:  
         db_user = users_coll.find_one({"_id": ObjectId(user['user_id'])})
         if db_user:
             return jsonify({
-                "ok": True,
+                "ok": True, 
                 "user": {
                     "id": str(db_user['_id']),
                     "full_name": db_user.get('full_name'),
@@ -1010,19 +945,21 @@ def save_prediction():
         doc = {
             "user_id": user_id,
             "user_name": user.get('full_name') or user.get('username'),
+            "first_exam_grade": int(fields.get("first_exam_grade", 0)),
+            "second_exam_grade": int(fields.get("second_exam_grade", 0)),
+            "study_time": float(fields.get("study_time", 0)),
+            "past_failures": int(fields.get("past_failures", 0)),
+            "absences": int(fields.get("absences", 0)),
+            "schoolsup": fields.get("schoolsup", ""),
+            "internet": fields.get("internet", ""),
             "pred": pred,
             "level": level,
             "created_at": datetime.datetime.utcnow()
         }
         
-        for friendly, ds_col in friendly_to_dataset.items():
-            val = fields.get(friendly, None)
-            doc[friendly] = val
-        
-       
         res = coll.insert_one(doc)
         return jsonify({
-            "ok": True,
+            "ok": True, 
             "id": str(res.inserted_id),
             "message": "Prediction saved successfully"
         })
@@ -1042,6 +979,13 @@ def get_records():
     for d in coll.find({"user_id": user_id}).sort("created_at", -1):
         rows.append({
             "_id": str(d.get("_id")),
+            "first_exam_grade": d.get("first_exam_grade"),
+            "second_exam_grade": d.get("second_exam_grade"),
+            "study_time": d.get("study_time"),
+            "past_failures": d.get("past_failures"),
+            "absences": d.get("absences"),
+            "schoolsup": d.get("schoolsup"),
+            "internet": d.get("internet"),
             "pred": d.get("pred"),
             "level": d.get("level"),
             "created_at": d.get("created_at").strftime("%Y-%m-%d %H:%M:%S")
@@ -1072,23 +1016,24 @@ def export_csv():
     rows = list(coll.find({"user_id": user_id}).sort("created_at", -1))
     si = io.StringIO()
     writer = csv.writer(si)
-    header = ["id"] + list(friendly_to_dataset.keys()) + ["pred","level","created_at"]
-    writer.writerow(header)
+    writer.writerow(["id","first_exam_grade","second_exam_grade","study_time","past_failures","absences","schoolsup","internet","pred","level","created_at"])
     for d in rows:
-        row = [
-            str(d.get("_id"))
-        ]
-        for friendly in friendly_to_dataset.keys():
-            row.append(d.get(friendly))
-        row.extend([
-            d.get("pred"),
-            d.get("level"),
+        writer.writerow([
+            str(d.get("_id")), 
+            d.get("first_exam_grade"), 
+            d.get("second_exam_grade"), 
+            d.get("study_time"), 
+            d.get("past_failures"), 
+            d.get("absences"), 
+            d.get("schoolsup"), 
+            d.get("internet"), 
+            d.get("pred"), 
+            d.get("level"), 
             d.get("created_at").strftime("%Y-%m-%d %H:%M:%S")
         ])
-        writer.writerow(row)
     return Response(
-        si.getvalue(),
-        mimetype="text/csv",
+        si.getvalue(), 
+        mimetype="text/csv", 
         headers={"Content-Disposition": "attachment;filename=my_predictions.csv"}
     )
 
@@ -1136,6 +1081,7 @@ def api_analytics():
         }
     })
 
+
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     return send_from_directory(str(WEB_DIR), filename)
@@ -1170,55 +1116,54 @@ def refresh_token():
     
     return response
 
+
 @app.route("/api/dataset_stats")
 @api_login_required
 def api_dataset_stats():
     try:
         correlations = {}
-        if 'Previous_Scores' in df.columns and 'Exam_Score' in df.columns:
-            correlations['Previous_Scores'] = float(df['Previous_Scores'].corr(df['Exam_Score']))
-        if 'Hours_Studied' in df.columns and 'Exam_Score' in df.columns:
-            correlations['Hours_Studied'] = float(df['Hours_Studied'].corr(df['Exam_Score']))
+        if 'G1' in df.columns and 'G3' in df.columns:
+            correlations['G1'] = float(df['G1'].corr(df['G3']))
+        if 'G2' in df.columns and 'G3' in df.columns:
+            correlations['G2'] = float(df['G2'].corr(df['G3']))
         
         study_time_impact = {}
-        if 'Hours_Studied' in df.columns and 'Exam_Score' in df.columns:
-            for hrs in sorted(df['Hours_Studied'].unique()):
-                avg_grade = float(df[df['Hours_Studied'] == hrs]['Exam_Score'].mean())
-                study_time_impact[float(hrs)] = round(avg_grade, 2)
+        if 'studytime' in df.columns and 'G3' in df.columns:
+            for study_time in sorted(df['studytime'].unique()):
+                avg_grade = float(df[df['studytime'] == study_time]['G3'].mean())
+                study_time_impact[int(study_time)] = round(avg_grade, 2)
         
         absence_impact = {}
-        if 'Attendance' in df.columns and 'Exam_Score' in df.columns:
-            try:
-                df['attendance_group'] = pd.cut(df['Attendance'], bins=[0,50,70,85,100], labels=['0-50','51-70','71-85','86-100'])
-                for group in ['0-50','51-70','71-85','86-100']:
-                    group_data = df[df['attendance_group'] == group]
-                    if len(group_data) > 0:
-                        absence_impact[group] = round(float(group_data['Exam_Score'].mean()), 2)
-            except:
-                pass
+        if 'absences' in df.columns and 'G3' in df.columns:
+            absence_bins = [0, 5, 10, 20, 100]
+            absence_labels = ['0-5', '6-10', '11-20', '21+']
+            df['absence_group'] = pd.cut(df['absences'], bins=absence_bins, labels=absence_labels)
+            for group in absence_labels:
+                group_data = df[df['absence_group'] == group]
+                if len(group_data) > 0:
+                    absence_impact[group] = round(float(group_data['G3'].mean()), 2)
         
-        tutoring_impact = {}
-        if 'Tutoring_Sessions' in df.columns and 'Exam_Score' in df.columns:
-            for t in sorted(df['Tutoring_Sessions'].unique()):
-                group = df[df['Tutoring_Sessions'] == t]
-                if len(group) > 0:
-                    tutoring_impact[int(t)] = round(float(group['Exam_Score'].mean()), 2)
+        failure_impact = {}
+        if 'failures' in df.columns and 'G3' in df.columns:
+            for failures in sorted(df['failures'].unique()):
+                avg_grade = float(df[df['failures'] == failures]['G3'].mean())
+                failure_impact[int(failures)] = round(avg_grade, 2)
         
         stats = {
             "total_students": len(df),
-            "average_final_score": round(float(df['Exam_Score'].mean()), 2),
-            "excellent_students": len(df[df['Exam_Score'] >= 90]),
-            "at_risk_students": len(df[df['Exam_Score'] < 50]),
-            "average_hours_studied": round(float(df['Hours_Studied'].mean()), 2),
-            "average_attendance": round(float(df['Attendance'].mean()), 2)
+            "average_final_grade": round(float(df['G3'].mean()), 2),
+            "excellent_students": len(df[df['G3'] >= 18]),
+            "at_risk_students": len(df[df['G3'] < 10]),
+            "average_study_time": round(float(df['studytime'].mean()), 2),
+            "average_absences": round(float(df['absences'].mean()), 2)
         }
         
         return jsonify({
             "ok": True,
             "correlations": correlations,
             "study_time_impact": study_time_impact,
-            "attendance_impact": absence_impact,
-            "tutoring_impact": tutoring_impact,
+            "absence_impact": absence_impact,
+            "failure_impact": failure_impact,
             "stats": stats
         })
         
@@ -1230,35 +1175,32 @@ def api_dataset_stats():
 @api_login_required
 def api_feature_importance():
     try:
-        try:
-            cat_features = preprocessor.named_transformers_['cat'].get_feature_names_out(cat_cols)
-        except:
-            try:
-                cat_features = preprocessor.named_transformers_['cat'].get_feature_names(cat_cols)
-            except:
-                cat_features = []
-        feature_names = num_cols + list(cat_features)
-        importance_scores = rf.feature_importances_
+        feature_names = num_cols + list(preprocessor.named_transformers_['cat'].get_feature_names_out(cat_cols))
+        
+        importance_scores = np.abs(lr_model.coef_)
         
         original_feature_importance = {}
         
         for i, feature in enumerate(feature_names):
             original_feature = feature
-            original_feature = re.sub(r'^(num__|cat__)', '', original_feature)
-            original_feature = re.split(r'[_\-]', original_feature)[0]
+            if feature.startswith('cat__'):
+                original_feature = feature.replace('cat__', '').split('_')[0]
+            elif feature.startswith('num__'):
+                original_feature = feature.replace('num__', '')
+            
             if original_feature not in original_feature_importance:
                 original_feature_importance[original_feature] = 0
             original_feature_importance[original_feature] += importance_scores[i]
         
-        total_importance = sum(original_feature_importance.values()) if original_feature_importance else 1
+        total_importance = sum(original_feature_importance.values())
         feature_importance_percent = {}
         
         for feature, importance in original_feature_importance.items():
             feature_importance_percent[feature] = round((importance / total_importance) * 100, 2)
         
         sorted_features = dict(sorted(
-            feature_importance_percent.items(),
-            key=lambda x: x[1],
+            feature_importance_percent.items(), 
+            key=lambda x: x[1], 
             reverse=True
         ))
         
@@ -1291,26 +1233,48 @@ def api_personal_recommendations():
         
         recommendations = []
         
-        avg_hours = float(predictions_df.get('hours_studied', pd.Series([0])).mean())
-        if avg_hours < 5:
+        avg_study_time = predictions_df['study_time'].mean()
+        if avg_study_time < 3:
             recommendations.append({
                 "type": "study_time",
                 "priority": "high",
                 "title": "Increase Study Time",
-                "message": f"Current study time ({avg_hours:.1f} hours) is below recommended. Aim for regular study sessions.",
+                "message": f"Current study time ({avg_study_time:.1f} hours) is below optimal. Aim for 3-4 hours weekly.",
                 "action": "Create a regular study schedule",
                 "icon": "bi-clock"
             })
         
-        avg_att = float(predictions_df.get('attendance', pd.Series([100])).mean())
-        if avg_att < 75:
+        avg_absences = predictions_df['absences'].mean()
+        if avg_absences > 5:
             recommendations.append({
                 "type": "attendance",
-                "priority": "high",
+                "priority": "high", 
                 "title": "Improve Attendance",
-                "message": f"Average attendance ({avg_att:.1f}%) is low. Regular attendance can improve performance.",
-                "action": "Identify reasons for absence and try to reduce them",
+                "message": f"Average absences ({avg_absences:.1f} days) is high. Regular attendance can improve performance by up to 30%.",
+                "action": "Identify reasons for absence and try to reduce it",
                 "icon": "bi-calendar-check"
+            })
+        
+        avg_failures = predictions_df['past_failures'].mean()
+        if avg_failures > 0:
+            recommendations.append({
+                "type": "remediation",
+                "priority": "medium",
+                "title": "Address Learning Gaps",
+                "message": "Past failures indicate need for additional support in core subjects.",
+                "action": "Review subjects you previously struggled with",
+                "icon": "bi-lightbulb"
+            })
+        
+        avg_first_exam = predictions_df['first_exam_grade'].mean()
+        if avg_first_exam < 12:
+            recommendations.append({
+                "type": "exam_preparation",
+                "priority": "medium",
+                "title": "Improve Exam Performance",
+                "message": f"First exam scores ({avg_first_exam:.1f}/20) need improvement for better final results.",
+                "action": "Focus on exam preparation strategies",
+                "icon": "bi-pencil"
             })
         
         if len(recommendations) < 3:
@@ -1321,7 +1285,7 @@ def api_personal_recommendations():
         
         return jsonify({
             "ok": True,
-            "recommendations": recommendations[:5]
+            "recommendations": recommendations[:5]  
         })
         
     except Exception as e:
@@ -1337,7 +1301,7 @@ def get_general_recommendations():
             "type": "study_habits",
             "priority": "medium",
             "title": "Optimize Study Environment",
-            "message": "Dedicated study spaces and focused sessions increase retention.",
+            "message": "Students with dedicated study spaces show 25% better performance.",
             "action": "Create a quiet, organized study area",
             "icon": "bi-house"
         },
@@ -1376,46 +1340,46 @@ def api_grade_improvement_plan():
                 "plan": get_default_improvement_plan()
             })
         
-        current_score = latest_prediction.get('pred', 50)
-        hours = latest_prediction.get('hours_studied', 0)
-        attendance = latest_prediction.get('attendance', 100)
-        tutoring = latest_prediction.get('tutoring_sessions', 0)
+        current_grade = latest_prediction.get('pred', 10)
+        study_time = latest_prediction.get('study_time', 2)
+        absences = latest_prediction.get('absences', 0)
+        failures = latest_prediction.get('past_failures', 0)
         
         improvement_plan = {
-            "current_score": current_score,
-            "target_score": min(100, current_score + 8),
-            "timeframe": "4-8 weeks",
+            "current_grade": current_grade,
+            "target_grade": min(20, current_grade + 3), 
+            "timeframe": "4-6 weeks",
             "actions": []
         }
         
-        if hours < 5:
+        if study_time < 3:
             improvement_plan["actions"].append({
                 "area": "Study Time",
-                "action": f"Increase from {hours} to {min(10, hours + 3)} hours weekly",
-                "impact": "Expected +3 to +5 points",
+                "action": f"Increase from {study_time} to {study_time + 1} hours weekly",
+                "impact": "Expected +1.5 points",
                 "timeline": "Immediate"
             })
         
-        if attendance < 80:
+        if absences > 5:
             improvement_plan["actions"].append({
                 "area": "Attendance",
-                "action": f"Improve attendance from {attendance}% to {min(100, attendance + 10)}%",
-                "impact": "Expected +2 to +4 points",
-                "timeline": "2-4 weeks"
+                "action": f"Reduce absences from {absences} to {max(0, absences - 3)} days",
+                "impact": "Expected +1.0 point",
+                "timeline": "2 weeks"
             })
         
-        if tutoring == 0:
+        if failures > 0:
             improvement_plan["actions"].append({
-                "area": "Tutoring",
-                "action": "Attend targeted tutoring sessions for weak topics",
-                "impact": "Expected +3 points",
-                "timeline": "3-6 weeks"
+                "area": "Academic Support",
+                "action": "Seek tutoring for challenging subjects",
+                "impact": "Expected +2.0 points",
+                "timeline": "3 weeks"
             })
         
         improvement_plan["actions"].append({
             "area": "Exam Strategy",
             "action": "Practice with past exam papers weekly",
-            "impact": "Expected +2 to +4 points",
+            "impact": "Expected +1.5 points",
             "timeline": "4 weeks"
         })
         
@@ -1433,26 +1397,26 @@ def api_grade_improvement_plan():
 
 def get_default_improvement_plan():
     return {
-        "current_score": 50,
-        "target_score": 58,
+        "current_grade": 10,
+        "target_grade": 13,
         "timeframe": "4-6 weeks",
         "actions": [
             {
                 "area": "Study Time",
-                "action": "Increase to 6-8 hours weekly",
-                "impact": "Expected +3 points",
+                "action": "Increase to 3-4 hours weekly",
+                "impact": "Expected +1.5 points",
                 "timeline": "Immediate"
             },
             {
                 "area": "Study Methods",
                 "action": "Implement active recall techniques",
-                "impact": "Expected +2 points",
+                "impact": "Expected +1.0 point",
                 "timeline": "2 weeks"
             },
             {
                 "area": "Exam Preparation",
                 "action": "Weekly practice tests",
-                "impact": "Expected +3 points",
+                "impact": "Expected +1.5 points",
                 "timeline": "4 weeks"
             }
         ]
@@ -1476,16 +1440,16 @@ def api_performance_benchmarks():
         
         benchmarks = {
             "user_stats": {
-                "average_score": round(float(user_df['pred'].mean()), 2),
+                "average_grade": round(float(user_df['pred'].mean()), 2),
                 "total_predictions": len(user_predictions),
-                "best_score": float(user_df['pred'].max()),
+                "best_grade": float(user_df['pred'].max()),
                 "improvement_trend": calculate_improvement_trend(user_predictions)
             },
             "dataset_benchmarks": {
-                "average_score": round(float(df['Exam_Score'].mean()), 2),
-                "top_25_percent": round(float(df['Exam_Score'].quantile(0.75)), 2),
-                "excellent_threshold": 90.0,
-                "at_risk_threshold": 50.0
+                "average_grade": round(float(df['G3'].mean()), 2),
+                "top_25_percent": round(float(df['G3'].quantile(0.75)), 2),
+                "excellent_threshold": 18.0,
+                "at_risk_threshold": 10.0
             },
             "comparison": compare_with_benchmarks(user_df, df)
         }
@@ -1503,23 +1467,22 @@ def api_performance_benchmarks():
         })
 
 def calculate_improvement_trend(predictions):
-    """Calculate if user scores are improving over time"""
     if len(predictions) < 3:
         return "insufficient_data"
     
     sorted_predictions = sorted(predictions, key=lambda x: x['created_at'])
-    scores = [p['pred'] for p in sorted_predictions]
+    grades = [p['pred'] for p in sorted_predictions]
     
-    if scores[-1] > scores[0]:
+    if grades[-1] > grades[0]:
         return "improving"
-    elif scores[-1] < scores[0]:
+    elif grades[-1] < grades[0]:
         return "declining"
     else:
         return "stable"
 
 def compare_with_benchmarks(user_df, dataset_df):
     user_avg = user_df['pred'].mean()
-    dataset_avg = dataset_df['Exam_Score'].mean()
+    dataset_avg = dataset_df['G3'].mean()
     
     if user_avg > dataset_avg:
         return f"Above average by {user_avg - dataset_avg:.1f} points"
@@ -1531,16 +1494,16 @@ def compare_with_benchmarks(user_df, dataset_df):
 def get_general_benchmarks():
     return {
         "user_stats": {
-            "average_score": 0,
+            "average_grade": 0,
             "total_predictions": 0,
-            "best_score": 0,
+            "best_grade": 0,
             "improvement_trend": "no_data"
         },
         "dataset_benchmarks": {
-            "average_score": round(float(df['Exam_Score'].mean()), 2),
-            "top_25_percent": round(float(df['Exam_Score'].quantile(0.75)), 2),
-            "excellent_threshold": 90.0,
-            "at_risk_threshold": 50.0
+            "average_grade": round(float(df['G3'].mean()), 2),
+            "top_25_percent": round(float(df['G3'].quantile(0.75)), 2),
+            "excellent_threshold": 18.0,
+            "at_risk_threshold": 10.0
         },
         "comparison": "No user data available for comparison"
     }
@@ -1753,47 +1716,32 @@ def calculate_prediction_frequency(user_id):
     else:
         return "Monthly"
 
-@app.route("/api/model_metrics")
-def api_model_metrics():
+@app.route("/api/models_comparison")
+@api_login_required
+def api_models_comparison():
     try:
+        lr_pred = lr_model.predict(X_test)
+
         nn = model_performance.get("Neural Network", {})
-        lr = model_performance.get("Linear Regression", {})
-        rf = model_performance.get("Random Forest", {})
 
-        mae = nn.get("MAE", 0)
-        mse = nn.get("MSE", 0)
-        r2  = nn.get("R2", 0)
-        rmse = float(np.sqrt(mse)) if mse else 0
-
-        history_path = ARTIFACTS_DIR / "training_history.json"
-        history = {}
-        loss = None
-        val_loss = None
-
-        if history_path.exists():
-            history = json.loads(history_path.read_text())
-            loss = history.get("loss", [])
-            val_loss = history.get("val_loss", [])
-
-        last_loss = float(loss[-1]) if loss else None
-        last_val_loss = float(val_loss[-1]) if val_loss else None
-
-        return jsonify({
-            "ok": True,
-            "metrics": {
-                "MAE": round(float(mae), 3),
-                "MSE": round(float(mse), 3),
-                "RMSE": round(float(rmse), 3),
-                "R2": round(float(r2), 3),
-                "Loss": round(last_loss, 3) if last_loss else None,
-                "Val_Loss": round(last_val_loss, 3) if last_val_loss else None,
+        metrics = {
+            "Neural Network": {
+                "MAE": float(nn.get("MAE", 0)),
+                "MSE": float(nn.get("MSE", 0)),
+                "RMSE": float(nn.get("RMSE", 0)),
+                "R2": float(nn.get("R2", 0))
             },
-            "history": history
-        })
+            "Linear Regression": {
+                "MAE": float(mean_absolute_error(y_test, lr_pred)),
+                "MSE": float(mean_squared_error(y_test, lr_pred)),
+                "RMSE": float(np.sqrt(mean_squared_error(y_test, lr_pred))),
+                "R2": float(r2_score(y_test, lr_pred))
+            }
+        }
 
+        return jsonify({"ok": True, "models": metrics})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)})
-
 
 if __name__ == "__main__":
     print("🚀 Student Performance Predictor Server Starting...")

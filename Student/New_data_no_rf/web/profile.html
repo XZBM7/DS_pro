@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Student Performance Predictor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --info: #4895ef;
+            --warning: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gradient: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+        }
+
+        [data-bs-theme="dark"] {
+            --primary: #4cc9f0;
+            --secondary: #4361ee;
+            --light: #2d2d2d;
+            --dark: #ffffff;
+            --gradient: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+        }
+
+        body {
+            background: var(--light);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        [data-bs-theme="dark"] .glass-card {
+            background: rgba(45, 45, 45, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .gradient-bg {
+            background: var(--gradient);
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .profile-header {
+            background: var(--gradient);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .stat-card {
+            background: var(--bs-card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .activity-badge {
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .form-section {
+            background: var(--bs-card-bg);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid var(--bs-border-color);
+        }
+
+        .password-strength {
+            height: 5px;
+            border-radius: 5px;
+            margin-top: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-weak { background: #dc3545; width: 25%; }
+        .strength-medium { background: #ffc107; width: 50%; }
+        .strength-strong { background: #198754; width: 75%; }
+        .strength-very-strong { background: #198754; width: 100%; }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .theme-switcher {
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .theme-switcher:hover {
+            background: var(--bs-border-color);
+        }
+
+        .btn-primary-custom {
+            background: var(--gradient);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
+            color: white;
+        }
+
+        .input-group-custom .form-control {
+            border-radius: 12px;
+            padding: 12px 16px;
+            border: 2px solid var(--bs-border-color);
+            transition: all 0.3s ease;
+            background: var(--bs-body-bg);
+            color: var(--bs-body-color);
+        }
+
+        .input-group-custom .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+        }
+
+        .level-distribution-item {
+            transition: all 0.3s ease;
+        }
+
+        .level-distribution-item:hover {
+            transform: translateX(5px);
+        }
+
+        .animated-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light glass-card mb-4">
+        <div class="container">
+            <a class="navbar-brand nav-brand" href="/">
+                <i class="bi bi-graph-up-arrow me-2"></i>
+                EduPredict AI
+            </a>
+            
+            <div class="navbar-nav ms-auto d-flex align-items-center">
+                <div class="theme-switcher me-3" onclick="toggleTheme()">
+                    <i class="bi bi-sun-fill" id="themeIcon"></i>
+                </div>
+               <a class="nav-link" href="/">
+    <i class="bi bi-house me-1"></i>Home
+</a>
+                <a class="nav-link" href="/dashboard">
+                    <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                </a>
+                <a class="nav-link" href="/analytics">
+                    <i class="bi bi-bar-chart me-1"></i>Analytics
+                </a>
+
+                <a class="nav-link" href="/insights">
+                    <i class="bi bi-lightbulb me-1"></i>AI Insights
+                </a>
+                <a class="nav-link" href="/model_visuals">
+    <i class="bi bi-bar-chart-line me-1"></i>Model Visuals
+</a>
+
+                   <a class="nav-link" href="/guide">
+        <i class="bi bi-book me-1"></i>User Guide
+    </a>
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle user-dropdown" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i>
+                        <span id="userName">User</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><span class="dropdown-item-text small text-muted" id="userEmail">user@example.com</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/profile">
+                            <i class="bi bi-person me-2"></i>My Profile
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="logout()">
+                            <i class="bi bi-box-arrow-right me-2"></i>Logout
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div class="profile-header animated-card">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <div class="bg-white rounded-circle p-3" style="width: 80px; height: 80px;">
+                        <i class="bi bi-person-fill text-primary fs-1"></i>
+                    </div>
+                </div>
+                <div class="col">
+                    <h2 id="userFullName">Loading...</h2>
+                    <p class="mb-1" id="userEmail">Loading...</p>
+                    <p class="mb-0" id="userSince">Member since: Loading...</p>
+                </div>
+                <div class="col-auto">
+                    <span class="activity-badge">
+                        <i class="bi bi-star-fill me-1"></i>
+                        <span id="userLevel">Active User</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-section animated-card">
+                    <h4><i class="bi bi-activity me-2"></i>Activity Overview</h4>
+                    
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1" id="totalPredictions">0</h5>
+                                <small class="text-muted">Total Predictions</small>
+                            </div>
+                            <i class="bi bi-graph-up text-primary fs-4"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1" id="averageGrade">0.0</h5>
+                                <small class="text-muted">Average Grade</small>
+                            </div>
+                            <i class="bi bi-award text-success fs-4"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1" id="predictionFrequency">No data</h5>
+                                <small class="text-muted">Prediction Frequency</small>
+                            </div>
+                            <i class="bi bi-clock-history text-info fs-4"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1" id="firstPrediction">No predictions</h5>
+                                <small class="text-muted">First Prediction</small>
+                            </div>
+                            <i class="bi bi-calendar-plus text-warning fs-4"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1" id="lastPrediction">No predictions</h5>
+                                <small class="text-muted">Last Prediction</small>
+                            </div>
+                            <i class="bi bi-calendar-check text-danger fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section animated-card">
+                    <h4><i class="bi bi-pie-chart me-2"></i>Performance Levels</h4>
+                    <div id="levelDistribution">
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-bar-chart fs-1"></i>
+                            <p class="mt-2">No prediction data available</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="form-section animated-card">
+                    <h4><i class="bi bi-person-gear me-2"></i>Edit Profile</h4>
+                    <form id="profileForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="fullName" class="form-label">Full Name</label>
+                                <input type="text" class="form-control input-group-custom" id="fullName" required>
+                                <div class="form-text">Must be at least 2 characters, letters only</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="text" class="form-control input-group-custom" id="username" required>
+                                <div class="form-text">3+ characters, letters, numbers, and underscores only</div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control input-group-custom" id="email" disabled>
+                            <div class="form-text">Email cannot be changed</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Account Created</label>
+                            <input type="text" class="form-control input-group-custom" id="createdAt" disabled>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Last Login</label>
+                            <input type="text" class="form-control input-group-custom" id="lastLogin" disabled>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom">
+                            <i class="bi bi-check-circle me-1"></i>Update Profile
+                        </button>
+                    </form>
+                </div>
+
+                <div class="form-section animated-card">
+                    <h4><i class="bi bi-shield-lock me-2"></i>Change Password</h4>
+                    <form id="passwordForm">
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label">Current Password</label>
+                            <input type="password" class="form-control input-group-custom" id="currentPassword" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">New Password</label>
+                            <input type="password" class="form-control input-group-custom" id="newPassword" required>
+                            <div class="password-strength" id="passwordStrength"></div>
+                            <div class="form-text">
+                                Must be at least 6 characters with uppercase, lowercase, and number
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control input-group-custom" id="confirmPassword" required>
+                            <div class="form-text" id="passwordMatch"></div>
+                        </div>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-key me-1"></i>Change Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="toast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-check-circle text-success me-2"></i>
+                <strong class="me-auto" id="toastTitle">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toastMessage"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentTheme = localStorage.getItem('theme') || 'light';
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            const themeIcon = document.getElementById('themeIcon');
+            themeIcon.className = theme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+            localStorage.setItem('theme', theme);
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(currentTheme);
+        }
+
+        let currentUser = null;
+
+        const elements = {
+            userFullName: document.getElementById('userFullName'),
+            userEmail: document.getElementById('userEmail'),
+            userSince: document.getElementById('userSince'),
+            userLevel: document.getElementById('userLevel'),
+            totalPredictions: document.getElementById('totalPredictions'),
+            averageGrade: document.getElementById('averageGrade'),
+            predictionFrequency: document.getElementById('predictionFrequency'),
+            firstPrediction: document.getElementById('firstPrediction'),
+            lastPrediction: document.getElementById('lastPrediction'),
+            levelDistribution: document.getElementById('levelDistribution'),
+            profileForm: document.getElementById('profileForm'),
+            passwordForm: document.getElementById('passwordForm'),
+            fullName: document.getElementById('fullName'),
+            username: document.getElementById('username'),
+            email: document.getElementById('email'),
+            createdAt: document.getElementById('createdAt'),
+            lastLogin: document.getElementById('lastLogin'),
+            currentPassword: document.getElementById('currentPassword'),
+            newPassword: document.getElementById('newPassword'),
+            confirmPassword: document.getElementById('confirmPassword'),
+            passwordStrength: document.getElementById('passwordStrength'),
+            passwordMatch: document.getElementById('passwordMatch'),
+            userName: document.getElementById('userName'),
+            userEmail: document.getElementById('userEmail'),
+            toast: document.getElementById('toast'),
+            toastTitle: document.getElementById('toastTitle'),
+            toastMessage: document.getElementById('toastMessage')
+        };
+
+        function showToast(title, message, type = 'success') {
+            elements.toastTitle.textContent = title;
+            elements.toastMessage.textContent = message;
+            elements.toast.className = `toast ${type === 'error' ? 'bg-danger text-white' : ''}`;
+            const toast = new bootstrap.Toast(elements.toast);
+            toast.show();
+        }
+
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/user');
+                const data = await response.json();
+                
+                if (data.ok) {
+                    elements.userName.textContent = data.user.full_name || data.user.username;
+                    elements.userEmail.textContent = data.user.email;
+                    loadUserProfile();
+                    loadUserActivity();
+                } else {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        async function loadUserProfile() {
+            try {
+                const response = await fetch('/api/user/profile');
+                const data = await response.json();
+                
+                if (data.ok) {
+                    const profile = data.profile;
+                    elements.userFullName.textContent = profile.full_name;
+                    elements.userEmail.textContent = profile.email;
+                    elements.userSince.textContent = `Member since: ${profile.created_at}`;
+                    
+                    elements.fullName.value = profile.full_name;
+                    elements.username.value = profile.username;
+                    elements.email.value = profile.email;
+                    elements.createdAt.value = profile.created_at;
+                    elements.lastLogin.value = profile.last_login;
+                } else {
+                    showToast('Error', data.error, 'error');
+                }
+            } catch (error) {
+                showToast('Error', 'Failed to load profile', 'error');
+            }
+        }
+
+        async function loadUserActivity() {
+            try {
+                const response = await fetch('/api/user/activity');
+                const data = await response.json();
+                
+                if (data.ok) {
+                    const activity = data.activity;
+                    const stats = activity.prediction_stats;
+                    
+                    elements.totalPredictions.textContent = stats.total_predictions;
+                    elements.averageGrade.textContent = stats.average_grade.toFixed(1);
+                    elements.predictionFrequency.textContent = activity.prediction_frequency;
+                    elements.firstPrediction.textContent = activity.first_prediction_date;
+                    elements.lastPrediction.textContent = activity.last_prediction_date;
+                    
+                    if (stats.total_predictions >= 10) {
+                        elements.userLevel.textContent = 'Power User';
+                    } else if (stats.total_predictions >= 5) {
+                        elements.userLevel.textContent = 'Active User';
+                    } else {
+                        elements.userLevel.textContent = 'New User';
+                    }
+
+                    displayLevelDistribution(stats.level_distribution);
+                }
+            } catch (error) {
+                console.error('Error loading activity:', error);
+            }
+        }
+
+        function displayLevelDistribution(distribution) {
+            if (!distribution || Object.keys(distribution).length === 0) {
+                elements.levelDistribution.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-bar-chart fs-1"></i>
+                        <p class="mt-2">No prediction data available</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const levels = {
+                'Excellent': { color: '#28a745', icon: 'bi-star-fill' },
+                'Very Good': { color: '#17a2b8', icon: 'bi-star-half' },
+                'Needs Improvement': { color: '#ffc107', icon: 'bi-exclamation-triangle' },
+                'At Risk': { color: '#dc3545', icon: 'bi-exclamation-octagon' }
+            };
+
+            let html = '';
+            for (const [level, count] of Object.entries(distribution)) {
+                const levelInfo = levels[level] || { color: '#6c757d', icon: 'bi-question-circle' };
+                const percentage = ((count / Object.values(distribution).reduce((a, b) => a + b, 0)) * 100).toFixed(1);
+                
+                html += `
+                    <div class="level-distribution-item d-flex justify-content-between align-items-center mb-2 p-2 rounded">
+                        <div class="d-flex align-items-center">
+                            <i class="${levelInfo.icon} me-2" style="color: ${levelInfo.color}"></i>
+                            <span>${level}</span>
+                        </div>
+                        <div>
+                            <span class="fw-bold">${count}</span>
+                            <small class="text-muted ms-1">(${percentage}%)</small>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            elements.levelDistribution.innerHTML = html;
+        }
+
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            
+            if (password.length >= 6) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+            
+            elements.passwordStrength.className = 'password-strength';
+            
+            if (password.length === 0) {
+                return;
+            } else if (strength <= 2) {
+                elements.passwordStrength.classList.add('strength-weak');
+            } else if (strength === 3) {
+                elements.passwordStrength.classList.add('strength-medium');
+            } else if (strength === 4) {
+                elements.passwordStrength.classList.add('strength-strong');
+            } else {
+                elements.passwordStrength.classList.add('strength-very-strong');
+            }
+        }
+
+        function checkPasswordMatch() {
+            const newPassword = elements.newPassword.value;
+            const confirmPassword = elements.confirmPassword.value;
+            
+            if (confirmPassword.length === 0) {
+                elements.passwordMatch.textContent = '';
+                elements.passwordMatch.className = 'form-text';
+            } else if (newPassword === confirmPassword) {
+                elements.passwordMatch.textContent = 'Passwords match';
+                elements.passwordMatch.className = 'form-text text-success';
+            } else {
+                elements.passwordMatch.textContent = 'Passwords do not match';
+                elements.passwordMatch.className = 'form-text text-danger';
+            }
+        }
+
+        elements.profileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                full_name: elements.fullName.value.trim(),
+                username: elements.username.value.trim()
+            };
+            
+            try {
+                const response = await fetch('/api/user/update', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.ok) {
+                    showToast('Success', data.message);
+                    elements.userFullName.textContent = formData.full_name;
+                    elements.userName.textContent = formData.full_name;
+                    setTimeout(() => {
+                        loadUserProfile();
+                        loadUserActivity();
+                    }, 1000);
+                } else {
+                    showToast('Error', data.error, 'error');
+                }
+            } catch (error) {
+                showToast('Error', 'Failed to update profile', 'error');
+            }
+        });
+
+        elements.passwordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                current_password: elements.currentPassword.value,
+                new_password: elements.newPassword.value,
+                confirm_password: elements.confirmPassword.value
+            };
+            
+            try {
+                const response = await fetch('/api/user/change-password', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.ok) {
+                    showToast('Success', data.message);
+                    elements.passwordForm.reset();
+                    elements.passwordStrength.className = 'password-strength';
+                    elements.passwordMatch.textContent = '';
+                } else {
+                    showToast('Error', data.error, 'error');
+                }
+            } catch (error) {
+                showToast('Error', 'Failed to change password', 'error');
+            }
+        });
+
+        elements.newPassword.addEventListener('input', (e) => {
+            checkPasswordStrength(e.target.value);
+            checkPasswordMatch();
+        });
+
+        elements.confirmPassword.addEventListener('input', checkPasswordMatch);
+
+        elements.fullName.addEventListener('input', (e) => {
+            const value = e.target.value;
+            if (value.length > 0 && !/^[a-zA-Z\u0600-\u06FF\s]+$/.test(value)) {
+                e.target.setCustomValidity('Full name can only contain letters and spaces');
+            } else {
+                e.target.setCustomValidity('');
+            }
+        });
+
+        elements.username.addEventListener('input', (e) => {
+            const value = e.target.value;
+            if (value.length > 0 && !/^[a-zA-Z0-9_]+$/.test(value)) {
+                e.target.setCustomValidity('Username can only contain letters, numbers, and underscores');
+            } else {
+                e.target.setCustomValidity('');
+            }
+        });
+
+        async function logout() {
+            try {
+                const response = await fetch('/api/logout', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.ok) {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        window.logout = logout;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme(currentTheme);
+            checkAuth();
+        });
+    </script>
+</body>
+</html>

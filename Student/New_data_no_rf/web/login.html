@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+<meta charset="utf-8">
+<title>Login | Student Performance Predictor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+<style>
+:root {
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --gradient: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+}
+
+[data-bs-theme="dark"] {
+    --primary: #4cc9f0;
+    --secondary: #4361ee;
+    --light: #2d2d2d;
+    --dark: #ffffff;
+    --gradient: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+}
+
+body {
+    background: var(--light);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    align-items: center;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+[data-bs-theme="dark"] .glass-card {
+    background: rgba(45, 45, 45, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gradient-bg {
+    background: var(--gradient);
+}
+
+.btn-primary-custom {
+    background: var(--gradient);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 30px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
+}
+
+.form-control {
+    border-radius: 12px;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+}
+
+.theme-switcher {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.theme-switcher:hover {
+    background: var(--border);
+}
+
+.input-icon {
+    position: relative;
+}
+
+.input-icon .form-control {
+    padding-left: 45px;
+}
+
+.input-icon i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 10;
+}
+
+.forgot-password {
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+.validation-feedback {
+    font-size: 0.8rem;
+    margin-top: 5px;
+}
+
+.validation-feedback.valid {
+    color: #28a745;
+}
+
+.validation-feedback.invalid {
+    color: #dc3545;
+}
+</style>
+</head>
+<body>
+<div class="theme-switcher" onclick="toggleTheme()">
+    <i class="bi bi-sun-fill" id="themeIcon"></i>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="glass-card p-5">
+                <div class="text-center mb-4">
+                    <div class="feature-icon gradient-bg text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <i class="bi bi-graph-up-arrow fs-2"></i>
+                    </div>
+                    <h2 class="fw-bold">Welcome Back</h2>
+                    <p class="text-muted">Sign in to your account</p>
+                </div>
+
+                <form id="loginForm">
+                    <div class="mb-3 input-icon">
+                        <label class="form-label">Email or Username</label>
+                        <i class="bi bi-person"></i>
+                        <input type="text" class="form-control" id="username" required 
+                               placeholder="Enter your email or username"
+                               oninput="validateUsername()">
+                        <div class="validation-feedback" id="usernameFeedback"></div>
+                    </div>
+                    
+                    <div class="mb-4 input-icon">
+                        <label class="form-label">Password</label>
+                        <i class="bi bi-lock"></i>
+                        <input type="password" class="form-control" id="password" required 
+                               placeholder="Enter your password"
+                               oninput="validatePassword()">
+                        <div class="validation-feedback" id="passwordFeedback"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">
+                                Remember me
+                            </label>
+                        </div>
+                        <a href="#" class="forgot-password text-muted">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom text-white w-100 py-3">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                    </button>
+                </form>
+
+                <div class="text-center mt-4">
+                    <p class="text-muted">Don't have an account? 
+                        <a href="/register" class="text-decoration-none fw-bold">Sign up</a>
+                    </p>
+                </div>
+
+                <div id="alertContainer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentTheme = localStorage.getItem('theme') || 'light';
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    const themeIcon = document.getElementById('themeIcon');
+    themeIcon.className = theme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+    localStorage.setItem('theme', theme);
+}
+
+function toggleTheme() {
+    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    applyTheme(currentTheme);
+}
+
+function showAlert(message, type = 'danger') {
+    const alertContainer = document.getElementById('alertContainer');
+    alertContainer.innerHTML = `
+        <div class="alert alert-${type} alert-dismissible fade show mt-3" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+}
+
+function validateUsername() {
+    const username = document.getElementById('username').value;
+    const feedback = document.getElementById('usernameFeedback');
+    
+    if (username.length === 0) {
+        feedback.textContent = '';
+        feedback.className = 'validation-feedback';
+        return false;
+    }
+    
+    if (username.length < 3) {
+        feedback.textContent = 'Username/email must be at least 3 characters long';
+        feedback.className = 'validation-feedback invalid';
+        return false;
+    }
+    
+    if (username.includes('@')) {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(username)) {
+            feedback.textContent = 'Please enter a valid email address';
+            feedback.className = 'validation-feedback invalid';
+            return false;
+        }
+    } else {
+        const usernameRegex = /^[a-zA-Z0-9_]{3,}$/;
+        if (!usernameRegex.test(username)) {
+            feedback.textContent = 'Username can only contain letters, numbers, and underscores';
+            feedback.className = 'validation-feedback invalid';
+            return false;
+        }
+    }
+    
+    feedback.textContent = 'Looks good!';
+    feedback.className = 'validation-feedback valid';
+    return true;
+}
+
+function validatePassword() {
+    const password = document.getElementById('password').value;
+    const feedback = document.getElementById('passwordFeedback');
+    
+    if (password.length === 0) {
+        feedback.textContent = '';
+        feedback.className = 'validation-feedback';
+        return false;
+    }
+    
+    if (password.length < 1) {
+        feedback.textContent = 'Password is required';
+        feedback.className = 'validation-feedback invalid';
+        return false;
+    }
+    
+    feedback.textContent = 'Looks good!';
+    feedback.className = 'validation-feedback valid';
+    return true;
+}
+
+function validateForm() {
+    const usernameValid = validateUsername();
+    const passwordValid = validatePassword();
+    
+    if (!usernameValid || !passwordValid) {
+        if (!usernameValid && document.getElementById('username').value.length > 0) {
+            showAlert('Please fix the username/email field');
+        } else if (!passwordValid && document.getElementById('password').value.length > 0) {
+            showAlert('Please fix the password field');
+        } else {
+            showAlert('Please fill in all required fields');
+        }
+        return false;
+    }
+    
+    return true;
+}
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+        return;
+    }
+    
+    const btn = this.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Signing in...';
+    btn.disabled = true;
+
+    const formData = {
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value
+    };
+
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (data.ok) {
+            showAlert('Login successful! Redirecting...', 'success');
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1000);
+        } else {
+            showAlert(data.error || 'Login failed');
+        }
+    } catch (error) {
+        showAlert('Network error: ' + error.message);
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+});
+
+document.getElementById('password').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    applyTheme(currentTheme);
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const message = urlParams.get('message');
+    if (message) {
+        showAlert(decodeURIComponent(message), 'info');
+    }
+    
+    document.getElementById('username').focus();
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
