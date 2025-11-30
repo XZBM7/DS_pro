@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+<meta charset="utf-8">
+<title>Model Visuals | Student Performance Predictor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<style>
+:root {
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --gradient: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    --card-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    --hover-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+}
+
+[data-bs-theme="dark"] {
+    --primary: #4cc9f0;
+    --secondary: #4361ee;
+    --light: #1e1e1e;
+    --dark: #ffffff;
+    --gradient: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+    --card-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    --hover-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+}
+
+body { 
+    background: var(--light); 
+    min-height: 100vh; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    transition: background-color 0.3s ease;
+}
+
+.glass-card { 
+    background: rgba(255, 255, 255, 0.95); 
+    backdrop-filter: blur(10px); 
+    border-radius: 20px; 
+    border: 1px solid rgba(255, 255, 255, 0.2); 
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s ease;
+}
+
+[data-bs-theme="dark"] .glass-card { 
+    background: rgba(30, 30, 30, 0.95); 
+    border: 1px solid rgba(255, 255, 255, 0.08); 
+}
+
+.nav-brand { 
+    font-weight: 700; 
+    font-size: 1.4rem; 
+    background: var(--gradient); 
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent; 
+    transition: all 0.3s ease;
+}
+
+.chart-card { 
+    border-radius: 16px; 
+    padding: 24px; 
+    box-shadow: var(--card-shadow);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    background: var(--card-bg, #fff);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-card:hover {
+    box-shadow: var(--hover-shadow);
+    transform: translateY(-5px);
+}
+
+.chart-card h5 {
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--dark);
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 10px;
+}
+
+.chart { 
+    width: 100%; 
+    height: 380px; 
+    flex-grow: 1;
+}
+
+.header-img { 
+    max-height: 60px; 
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.page-header {
+    background: var(--gradient);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    color: white;
+    box-shadow: var(--card-shadow);
+}
+
+.page-header h2 {
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.page-header p {
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+.nav-link {
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 8px 16px !important;
+    margin: 0 4px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+    background: rgba(67, 97, 238, 0.1);
+    color: var(--primary) !important;
+}
+
+[data-bs-theme="dark"] .nav-link:hover, 
+[data-bs-theme="dark"] .nav-link.active {
+    background: rgba(76, 201, 240, 0.1);
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--dark);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    flex-direction: column;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(67, 97, 238, 0.2);
+    border-radius: 50%;
+    border-top-color: var(--primary);
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.chart-container {
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .chart-card {
+        padding: 16px;
+    }
+    
+    .page-header {
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .header-img {
+        margin-top: 15px;
+    }
+}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light glass-card mb-4">
+  <div class="container">
+    <a class="navbar-brand nav-brand" href="/">
+      <i class="bi bi-graph-up-arrow me-2"></i>EduPredict AI
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="navbar-nav ms-auto d-flex align-items-center">
+        <a class="nav-link" href="/analytics"><i class="bi bi-bar-chart me-1"></i>Analytics</a>
+        <a class="nav-link active" href="/model_visuals"><i class="bi bi-pie-chart-fill me-1"></i>Model Visuals</a>
+        <a class="nav-link" href="/dashboard"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+        <div class="nav-item dropdown">
+          <a class="nav-link" href="/profile"><i class="bi bi-person-circle me-1"></i>Profile</a>
+        </div>
+        <button class="theme-toggle ms-2" id="themeToggle">
+          <i class="bi bi-sun-fill"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h2>Model Visualizations</h2>
+      </div>
+      <div class="col-md-4 text-md-end">
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="chart-card">
+        <h5><i class="bi bi-graph-down me-2"></i>Training & Validation Loss</h5>
+        <div id="lossChart" class="chart">
+          <div class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading loss data...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="chart-card">
+        <h5><i class="bi bi-bullseye me-2"></i>Predictions vs Actual</h5>
+        <div id="predActualChart" class="chart">
+          <div class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading prediction data...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="chart-card">
+        <h5><i class="bi bi-bar-chart-steps me-2"></i>Feature Importance</h5>
+        <div id="featureImpChart" class="chart">
+          <div class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading feature importance...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="chart-card">
+        <h5><i class="bi bi-distribute-horizontal me-2"></i>Residuals / Error Distribution</h5>
+        <div id="residualsChart" class="chart">
+          <div class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading residuals data...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let currentTheme = localStorage.getItem('theme') || 'light';
+function applyTheme(t) { 
+  document.documentElement.setAttribute('data-bs-theme', t); 
+  localStorage.setItem('theme', t); 
+  
+  const themeIcon = document.getElementById('themeToggle').querySelector('i');
+  if (t === 'dark') {
+    themeIcon.className = 'bi bi-moon-fill';
+  } else {
+    themeIcon.className = 'bi bi-sun-fill';
+  }
+}
+applyTheme(currentTheme);
+
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  currentTheme = newTheme;
+  applyTheme(newTheme);
+});
+
+async function fetchPlotData(){
+  try{
+    document.querySelectorAll('.loading').forEach(el => {
+      el.style.display = 'flex';
+    });
+    
+    const res = await fetch('/api/model_plot_data');
+    const j = await res.json();
+    if(!j.ok) {
+      console.error('No plot data');
+      showErrorMessages();
+      return;
+    }
+    renderAll(j);
+  }catch(e){ 
+    console.error(e); 
+    showErrorMessages();
+  }
+}
+
+function showErrorMessages() {
+  const errorHTML = `
+    <div class="text-center text-muted p-4">
+      <i class="bi bi-exclamation-triangle display-4 mb-3"></i>
+      <p>Failed to load visualization data. Please try again later.</p>
+    </div>
+  `;
+  
+  document.querySelectorAll('.chart').forEach(el => {
+    el.innerHTML = errorHTML;
+  });
+}
+
+function renderAll(data){
+  document.querySelectorAll('.loading').forEach(el => {
+    el.style.display = 'none';
+  });
+  
+  renderLoss(data.history);
+  renderPredActual(data.predictions_vs_actual);
+  renderFeatureImportance(data.feature_importance);
+  renderResiduals(data.residuals);
+}
+
+function renderLoss(history){
+  const loss = (history && history.loss) ? history.loss : [];
+  const val = (history && history.val_loss) ? history.val_loss : [];
+  const x = Array.from({length: Math.max(loss.length, val.length)}, (_,i)=>i+1);
+  const traces = [];
+  
+  if(loss.length) traces.push({ 
+    x, 
+    y: loss, 
+    mode:'lines+markers', 
+    name:'Training Loss', 
+    line:{width:3, color:'#4361ee'} 
+  });
+  
+  if(val.length) traces.push({ 
+    x, 
+    y: val, 
+    mode:'lines+markers', 
+    name:'Validation Loss', 
+    line:{width:3, dash:'dash', color:'#f72585'} 
+  });
+  
+  const layout = { 
+    title: '',
+    paper_bgcolor:'rgba(0,0,0,0)', 
+    plot_bgcolor:'rgba(0,0,0,0)', 
+    xaxis:{title:'Epoch'}, 
+    yaxis:{title:'Loss'},
+    font: { family: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif' },
+    margin: { t: 10 }
+  };
+  
+  Plotly.newPlot('lossChart', traces, layout, {responsive:true});
+}
+
+function renderPredActual(obj){
+  const y_true = obj && obj.y_true ? obj.y_true : [];
+  const y_pred = obj && obj.y_pred ? obj.y_pred : [];
+  const minv = Math.min(...(y_true.concat(y_pred)), 0);
+  const maxv = Math.max(...(y_true.concat(y_pred)), 20);
+  
+  const trace1 = { 
+    x: y_true, 
+    y: y_pred, 
+    mode:'markers', 
+    name:'Predicted vs Actual', 
+    marker:{
+      size:7,
+      color: '#4361ee',
+      opacity: 0.7
+    }, 
+    type:'scatter' 
+  };
+  
+  const line = { 
+    x:[minv, maxv], 
+    y:[minv, maxv], 
+    mode:'lines', 
+    name:'Ideal', 
+    line:{dash:'dash', color:'#17a2b8', width: 2} 
+  };
+  
+  const layout = { 
+    title: '',
+    xaxis:{title:'Actual'}, 
+    yaxis:{title:'Predicted'},
+    font: { family: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif' },
+    margin: { t: 10 }
+  };
+  
+  Plotly.newPlot('predActualChart', [trace1, line], layout, {responsive:true});
+}
+
+function renderFeatureImportance(list){
+  const features = list.map(o=>o.feature).slice(0,20);
+  const imps = list.map(o=>o.importance).slice(0,20);
+  
+  const trace = { 
+    x: imps.reverse(), 
+    y: features.reverse(), 
+    type:'bar', 
+    orientation:'h', 
+    marker:{
+      color: '#4361ee',
+      opacity: 0.8
+    } 
+  };
+  
+  const layout = { 
+    title: '',
+    margin:{l:180},
+    font: { family: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif' },
+    xaxis: { title: 'Importance' },
+    margin: { t: 10 }
+  };
+  
+  Plotly.newPlot('featureImpChart', [trace], layout, {responsive:true});
+}
+
+function renderResiduals(res){
+  const r = res || [];
+  
+  const trace = { 
+    x: r, 
+    type:'histogram', 
+    nbinsx:40,
+    marker: {
+      color: '#4361ee',
+      opacity: 0.7
+    }
+  }; 
+  
+  const layout = { 
+    title: '',
+    xaxis:{title:'Residual (Actual - Predicted)'},
+    yaxis: { title: 'Frequency' },
+    font: { family: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif' },
+    margin: { t: 10 }
+  };
+  
+  Plotly.newPlot('residualsChart', [trace], layout, {responsive:true});
+}
+
+document.addEventListener('DOMContentLoaded', fetchPlotData);
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

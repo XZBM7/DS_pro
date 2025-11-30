@@ -1,3 +1,149 @@
+
+# BY XZ - BM7
+
+       #####################
+     ##                   ##
+   ##   ####         ####   ##
+  #    #    #       #    #    #
+ #     # O  #       #  O #     #
+#       ####         ####       #
+#                               #
+#        \   \_____/   /        #
+#         \           /         #
+ #         \  -----  /         #
+  #          \_____/          #
+   ##                       ##
+     ##                 ##
+       #################
+
+
+# BY XZ - BM7
+
+       #####################
+     ##                   ##
+   ##   ####         ####   ##
+  #    #    #       #    #    #
+ #     # O  #       #  O #     #
+#       ####         ####       #
+#                               #
+#        \   \_____/   /        #
+#         \           /         #
+ #         \  -----  /         #
+  #          \_____/          #
+   ##                       ##
+     ##                 ##
+       #################
+
+
+
+       #####################
+     ##                   ##
+   ##   ####         ####   ##
+  #    #    #       #    #    #
+ #     # O  #       #  O #     #
+#       ####         ####       #
+#                               #
+#        \   \_____/   /        #
+#         \           /         #
+ #         \  -----  /         #
+  #          \_____/          #
+   ##                       ##
+     ##                 ##
+       #################
+
+
+# BY XZ - BM7
+
+
+# This project is a full student performance prediction platform built with machine learning models, 
+# a complete API, authentication system, dashboard, analytics engine, and MongoDB storage. 
+# In short: this is not your average weekend script. It is a fully armed and operational battle station.
+
+# First, the system loads and cleans the student dataset (student-por.csv). 
+# It identifies numerical and categorical features, then builds a preprocessing pipeline using StandardScaler 
+# for numeric data and OneHotEncoder for categorical features. 
+# If a preprocessor is already saved, we reuse it because we value efficiency and RAM, not punishment.
+
+# After preprocessing, the data is split into training and testing sets. 
+# The system then trains classical machine learning models:
+# Linear Regression and RandomForestRegressor. 
+# Each model's performance is evaluated using MAE, MSE, and R2 
+# to confirm whether the model actually learned something or just pretended to.
+
+# Because we enjoy overachieving, a neural network is also included using Keras, 
+# with multiple Dense layers, Dropout for regularization, and callbacks such as EarlyStopping. 
+# If a trained model already exists, we load it instead of retraining, 
+# because life is too short to wait for neural networks to relearn the same thing every time.
+
+# MongoDB is used as the database. 
+# We establish a connection, create collections for users and predictions, 
+# and apply unique indexes on email and username for data sanity. 
+# If MongoDB refuses to cooperate, the app continues without throwing a tantrum.
+
+# The authentication system uses JWT tokens. 
+# The app supports registration, login, logout, token refresh, 
+# and secure API protection using decorators like login_required and api_login_required.
+# In short, if you are not logged in, you are not invited to the party.
+
+# The /api/predict endpoint:
+# It accepts user-friendly input fields (e.g., study_time, absences), converts them to dataset feature names,
+# runs the neural network model, and returns the predicted grade along with performance level 
+# and AI-generated insights. 
+# The insights help the user pretend the system is smarter than it really is.
+
+# The /api/save endpoint stores prediction history in MongoDB along with all input fields 
+# so the user can view analytics later and also wonder why they kept scoring low in the first exam.
+
+# The analytics system is quite extensive:
+# It aggregates prediction statistics, average grades, distributions, monthly trends, 
+# and even compares model performance. 
+# Basically, a mini data analytics platform is included for free.
+
+# The system also provides personalized recommendations based on user prediction history.
+# For example:
+# If the user barely studies, we gently suggest increasing study time.
+# If they skip school like it's a hobby, we mention attendance improvements.
+# If everything is fine, we still give recommendations so they feel supported.
+
+# The /api/feature_importance endpoint computes feature importance using RandomForest, 
+# including correctly grouping OneHotEncoded features back into their original columns. 
+# This is the kind of attention to detail that makes managers smile.
+
+# Additional modules include:
+# User profile management
+# Change password API
+# Export CSV functionality
+# Records archive
+# Performance benchmarks
+# User activity tracking
+# Dataset-wide insights and correlation analysis
+
+# Finally, the server launches on 127.0.0.1:5000, prints model performance in the console, 
+# and hosts the frontend pages from the web directory.
+
+
+
+       #####################
+     ##                   ##
+   ##   ####         ####   ##
+  #    #    #       #    #    #
+ #     # O  #       #  O #     #
+#       ####         ####       #
+#                               #
+#        \   \_____/   /        #
+#         \           /         #
+ #         \  -----  /         #
+  #          \_____/          #
+   ##                       ##
+     ##                 ##
+       #################
+
+
+
+# BY XZ - BM7
+
+
+
 import os
 import sys
 import json
@@ -18,7 +164,7 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, VotingRegressor
 import tensorflow as tf
 from tensorflow.keras import layers, models, callbacks
 from flask import Flask, request, jsonify, send_from_directory, Response, redirect, url_for
@@ -70,7 +216,12 @@ if not os.path.exists(DATA_FILE):
     sys.exit(1)
 
 df = pd.read_csv(DATA_FILE)
-df = df.drop_duplicates().ffill()
+df = df[df['G3'] != 0]
+
+df['G_Avg'] = (df['G1'] + df['G2']) / 2
+df['G_Improvement'] = df['G2'] - df['G1']
+df['Risk_Factor'] = (df['failures'] * 2) + df['absences']
+
 target = "G3"
 if target not in df.columns:
     print("ERROR: Target column G3 not found")
@@ -104,38 +255,49 @@ X_train, X_test, y_train, y_test = train_test_split(X_processed, y, test_size=0.
 
 model_performance = {}
 
-print("Training classical models...")
-lr = LinearRegression().fit(X_train, y_train)
-rf = RandomForestRegressor(n_estimators=150, random_state=42).fit(X_train, y_train)
+print("Training Ensemble models...")
+reg1 = GradientBoostingRegressor(n_estimators=300, learning_rate=0.05, max_depth=4, random_state=42)
+reg2 = RandomForestRegressor(n_estimators=300, random_state=42)
+reg3 = LinearRegression()
 
-lr_pred = lr.predict(X_test)
-rf_pred = rf.predict(X_test)
+ensemble_model = VotingRegressor(estimators=[
+    ('gb', reg1), 
+    ('rf', reg2), 
+    ('lr', reg3)
+])
+ensemble_model.fit(X_train, y_train)
 
-model_performance['Linear Regression'] = {
-    'MAE': mean_absolute_error(y_test, lr_pred),
-    'MSE': mean_squared_error(y_test, lr_pred),
-    'R2': r2_score(y_test, lr_pred)
+ens_pred = ensemble_model.predict(X_test)
+
+ens_mae = mean_absolute_error(y_test, ens_pred)
+ens_mse = mean_squared_error(y_test, ens_pred)
+ens_rmse = np.sqrt(ens_mse)
+ens_r2 = r2_score(y_test, ens_pred)
+
+model_performance['Ensemble'] = {
+    'MAE': ens_mae,
+    'MSE': ens_mse,
+    'RMSE': ens_rmse,
+    'R2': ens_r2
 }
 
-model_performance['Random Forest'] = {
-    'MAE': mean_absolute_error(y_test, rf_pred),
-    'MSE': mean_squared_error(y_test, rf_pred),
-    'R2': r2_score(y_test, rf_pred)
-}
-
-print("Classical Models Performance:")
-for model, metrics in model_performance.items():
-    print(f"{model}: MAE={metrics['MAE']:.3f}, R²={metrics['R2']:.3f}")
+print(f"Ensemble Performance: R²={ens_r2:.4f}")
 
 input_dim = X_train.shape[1]
 
 def build_nn(input_dim):
     m = models.Sequential()
     m.add(layers.Input(shape=(input_dim,)))
-    m.add(layers.Dense(128, activation='relu', kernel_initializer='he_normal'))
-    m.add(layers.Dropout(0.3))
-    m.add(layers.Dense(64, activation='relu'))
+    m.add(layers.Dense(256))
+    m.add(layers.LeakyReLU(alpha=0.1))
+    m.add(layers.BatchNormalization())
     m.add(layers.Dropout(0.2))
+    m.add(layers.Dense(128))
+    m.add(layers.LeakyReLU(alpha=0.1))
+    m.add(layers.BatchNormalization())
+    m.add(layers.Dropout(0.1))
+    m.add(layers.Dense(64, activation='relu'))
+    m.add(layers.Dense(32, activation='relu'))
     m.add(layers.Dense(1))
     m.compile(optimizer='adam', loss='mse', metrics=[tf.keras.metrics.RootMeanSquaredError()])
     return m
@@ -146,7 +308,7 @@ if MODEL_PATH.exists():
     print("Loaded model from cache:", MODEL_PATH)
 else:
     model = build_nn(input_dim)
-    es = callbacks.EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+    es = callbacks.EarlyStopping(monitor='val_loss', patience=20, restore_best_weights=True)
     rlr = callbacks.ReduceLROnPlateau(monitor='val_loss', patience=5, factor=0.5)
     cp = callbacks.ModelCheckpoint(filepath=str(MODEL_PATH), save_best_only=True)
 
@@ -154,10 +316,10 @@ else:
     history = model.fit(
         X_train, y_train,
         validation_split=0.15,
-        epochs=150,
-        batch_size=64,
+        epochs=300,
+        batch_size=32,
         callbacks=[es, rlr, cp],
-        verbose=1
+        verbose=0
     )
 
     with open(ARTIFACTS_DIR / "training_history.json", "w") as f:
@@ -165,16 +327,28 @@ else:
 
     print("Model trained and saved to:", MODEL_PATH)
 
-nn_preds = model.predict(X_test).flatten()
+nn_preds = model.predict(X_test, verbose=0).flatten()
+nn_mae = mean_absolute_error(y_test, nn_preds)
+nn_mse = mean_squared_error(y_test, nn_preds)
+nn_rmse = np.sqrt(nn_mse)
+nn_r2 = r2_score(y_test, nn_preds)
+
 model_performance['Neural Network'] = {
-    'MAE': mean_absolute_error(y_test, nn_preds),
-    'MSE': mean_squared_error(y_test, nn_preds),
-    'R2': r2_score(y_test, nn_preds)
+    'MAE': nn_mae,
+    'MSE': nn_mse,
+    'RMSE': nn_rmse,
+    'R2': nn_r2
 }
 
-print("Neural Network Performance:")
-print(f"MAE: {model_performance['Neural Network']['MAE']:.3f}")
-print(f"R²: {model_performance['Neural Network']['R2']:.3f}")
+print("\n" + "█"*60)
+print("📊 DETAILED MODEL METRICS (Best Model: Ensemble)")
+print("█"*60)
+print(f"   ➤ MAE  (Mean Abs Error): {round(ens_mae, 3)}")
+print(f"   ➤ MSE  (Mean Sq Error):  {round(ens_mse, 3)}")
+print(f"   ➤ RMSE (Root MSE):       {round(ens_rmse, 3)}")
+print(f"   ➤ R2   (Accuracy):       {round(ens_r2, 4)} ({round(ens_r2*100, 2)}%)")
+print(f"   ➤ Loss (Test Error):     {round(ens_mse, 3)}")
+print("█"*60 + "\n")
 
 try:
     mongo = MongoClient(MONGO_URI)
@@ -191,8 +365,6 @@ except Exception as e:
     print("MongoDB connection failed:", e)
     coll = None
     users_coll = None
-
-
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -303,9 +475,18 @@ def predict_row_friendly(input_dict):
             else:
                 row[ds_col] = val
     
+    g1 = row.get('G1', 0)
+    g2 = row.get('G2', 0)
+    failures = row.get('failures', 0)
+    absences = row.get('absences', 0)
+    
+    row['G_Avg'] = (g1 + g2) / 2
+    row['G_Improvement'] = g2 - g1
+    row['Risk_Factor'] = (failures * 2) + absences
+
     df_row = pd.DataFrame([row], columns=list(X_df.columns))
     Xp = preprocessor.transform(df_row)
-    pred = float(model.predict(Xp).flatten()[0])
+    pred = float(ensemble_model.predict(Xp)[0])
     pred = max(0.0, min(20.0, float(pred)))
     return round(pred, 2), row
 
@@ -339,7 +520,6 @@ def interpret_grade(g):
     }
 
 def generate_ai_insights(prediction_data):
-    """Generate AI-powered insights based on prediction data"""
     insights = []
     
     study_time = prediction_data.get('study_time', 2)
@@ -399,21 +579,18 @@ def api_model_plot_data():
                 y_true = []
 
             try:
-                pred_arr = globals()['model'].predict(Xt)
+                pred_arr = globals()['ensemble_model'].predict(Xt)
                 y_pred = list(map(float, np.array(pred_arr).flatten()))
             except:
-                try:
-                    pred_arr = globals()['rf'].predict(Xt)
-                    y_pred = list(map(float, np.array(pred_arr).flatten()))
-                except:
-                    y_pred = []
+                y_pred = []
 
         if y_true and y_pred and len(y_true) == len(y_pred):
             residuals = [float(t - p) for t, p in zip(y_true, y_pred)]
 
-        rf_model = globals().get('rf')
+        rf_est = globals()['ensemble_model'].named_estimators_['rf']
         pre = globals().get('preprocessor')
-        if rf_model is not None:
+        
+        if rf_est is not None:
             try:
                 cat_feats = pre.named_transformers_['cat'].get_feature_names_out(cat_cols)
             except:
@@ -422,7 +599,7 @@ def api_model_plot_data():
                 except:
                     cat_feats = []
             feat_names = num_cols + list(cat_feats)
-            feat_importances = list(map(float, rf_model.feature_importances_))
+            feat_importances = list(map(float, rf_est.feature_importances_))
             for f, v in zip(feat_names, feat_importances):
                 feature_pairs.append({"feature": f, "importance": v})
             feature_pairs = sorted(feature_pairs, key=lambda x: x['importance'], reverse=True)
@@ -452,8 +629,6 @@ def api_model_plot_data():
 @login_required
 def model_visuals_page():
     return send_from_directory(str(WEB_DIR), "model_visuals.html")
-
-
 
 def calculate_real_stats(user_id=None):
     if coll is None:
@@ -518,7 +693,6 @@ def guide_page():
 
 @app.route("/unauthorized")
 def unauthorized_page():
-    """صفحة غير مصرح لك"""
     return send_from_directory(str(WEB_DIR), "unauthorized.html")
 
 @app.route("/api/register", methods=["POST"])
@@ -957,7 +1131,9 @@ def api_dataset_stats():
 def api_feature_importance():
     try:
         feature_names = num_cols + list(preprocessor.named_transformers_['cat'].get_feature_names_out(cat_cols))
-        importance_scores = rf.feature_importances_
+        
+        rf_est = ensemble_model.named_estimators_['rf']
+        importance_scores = rf_est.feature_importances_
         
         original_feature_importance = {}
         
@@ -1247,7 +1423,6 @@ def api_performance_benchmarks():
         })
 
 def calculate_improvement_trend(predictions):
-    """Calculate if user grades are improving over time"""
     if len(predictions) < 3:
         return "insufficient_data"
     
@@ -1496,6 +1671,43 @@ def calculate_prediction_frequency(user_id):
         return "Weekly"
     else:
         return "Monthly"
+
+@app.route("/api/models_comparison")
+@api_login_required
+def api_models_comparison():
+    try:
+        lr = ensemble_model.named_estimators_['lr']
+        lr_pred = lr.predict(X_test)
+
+        rf = ensemble_model.named_estimators_['rf']
+        rf_pred = rf.predict(X_test)
+
+        nn = model_performance.get("Neural Network", {})
+
+        metrics = {
+            "Neural Network": {
+                "MAE": float(nn.get("MAE", 0)),
+                "MSE": float(nn.get("MSE", 0)),
+                "RMSE": float(nn.get("RMSE", 0)),
+                "R2": float(nn.get("R2", 0))
+            },
+            "Random Forest": {
+                "MAE": float(mean_absolute_error(y_test, rf_pred)),
+                "MSE": float(mean_squared_error(y_test, rf_pred)),
+                "RMSE": float(np.sqrt(mean_squared_error(y_test, rf_pred))),
+                "R2": float(r2_score(y_test, rf_pred))
+            },
+            "Linear Regression": {
+                "MAE": float(mean_absolute_error(y_test, lr_pred)),
+                "MSE": float(mean_squared_error(y_test, lr_pred)),
+                "RMSE": float(np.sqrt(mean_squared_error(y_test, lr_pred))),
+                "R2": float(r2_score(y_test, lr_pred))
+            }
+        }
+
+        return jsonify({"ok": True, "models": metrics})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
 
 if __name__ == "__main__":
     print("🚀 Student Performance Predictor Server Starting...")

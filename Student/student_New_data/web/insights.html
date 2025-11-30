@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+<meta charset="utf-8">
+<title>AI Insights | Student Performance Predictor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+<style>
+:root {
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --gradient: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    --card-bg: rgba(255,255,255,0.95);
+    --muted: #6c757d;
+}
+
+[data-bs-theme="dark"] {
+    --primary: #4cc9f0;
+    --secondary: #4361ee;
+    --light: #1b1b1b;
+    --dark: #ffffff;
+    --gradient: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+    --card-bg: rgba(45,45,45,0.95);
+    --muted: #9aa6bf;
+}
+
+body {
+    background: var(--light);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--dark);
+    transition: all 0.25s ease;
+}
+
+.glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(6px);
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.04);
+    box-shadow: 0 8px 30px rgba(20,20,30,0.05);
+    padding: 1.25rem;
+}
+
+.nav-brand {
+    font-weight: 700;
+    font-size: 1.25rem;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.feature-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.gradient-bg {
+    background: var(--gradient);
+}
+
+.progress-custom {
+    height: 8px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.04);
+}
+
+.progress-custom .progress-bar {
+    border-radius: 10px;
+    transition: width 0.6s ease-in-out;
+}
+
+.correlation-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 12px;
+    background: var(--primary);
+    color: white;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 0.9rem;
+    border-radius: 10px;
+    background: rgba(67,97,238,0.04);
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.stat-label {
+    font-size: 0.78rem;
+    color: var(--muted);
+    display:block;
+    margin-top:6px;
+}
+
+.small-muted {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.insight-card { margin-bottom: 1rem; }
+
+.code-block {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+    font-size: 0.9rem;
+    background: rgba(0,0,0,0.03);
+    padding: 0.5rem;
+    border-radius: 8px;
+    overflow:auto;
+}
+
+.badge-sm { font-size: 0.7rem; padding: 0.35em 0.45em; }
+
+.user-dropdown { cursor:pointer; }
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light glass-card mb-4">
+    <div class="container">
+        <a class="navbar-brand nav-brand" href="/">
+            <i class="bi bi-graph-up-arrow me-2"></i>
+            EduPredict AI
+        </a>
+        <div class="navbar-nav ms-auto d-flex align-items-center gap-2">
+            <div class="theme-switcher" onclick="toggleTheme()" title="Toggle theme">
+                <i class="bi bi-sun-fill" id="themeIcon"></i>
+            </div>
+            <a class="nav-link" href="/"><i class="bi bi-house me-1"></i>Home</a>
+            <a class="nav-link" href="/analytics"><i class="bi bi-bar-chart me-1"></i>Analytics</a>
+            <a class="nav-link" href="/insights"><i class="bi bi-lightbulb me-1"></i>AI Insights</a>
+            <a class="nav-link" href="/model_visuals"><i class="bi bi-bar-chart-line me-1"></i>Model Visuals</a>
+            <a class="nav-link" href="/guide"><i class="bi bi-book me-1"></i>User Guide</a>
+            <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle user-dropdown" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle me-1"></i>
+                    <span id="userName">User</span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><span class="dropdown-item-text small text-muted" id="userEmail">user@example.com</span></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/profile"><i class="bi bi-person me-2"></i>My Profile</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="logout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container mb-5">
+    <div class="row mb-4">
+        <div class="col text-center">
+            <div class="feature-icon gradient-bg text-white mx-auto mb-2">
+                <i class="bi bi-robot"></i>
+            </div>
+            <h1 class="display-5 fw-bold">AI Insights & Recommendations</h1>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="glass-card">
+                <h5 class="mb-3"><i class="bi bi-lightbulb text-warning me-2"></i>Real Data Insights <span class="correlation-badge ms-2">Live Analysis</span></h5>
+                <div id="realInsightsContainer">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading insights...</span></div>
+                        <p class="small-muted mt-2">Analyzing dataset patterns...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card mt-4">
+                <h5 class="mb-3"><i class="bi bi-check-circle text-success me-2"></i>Personalized Recommendations <span class="correlation-badge ms-2">AI-Powered</span></h5>
+                <div id="personalizedRecommendations">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+                        <p class="small-muted mt-2">Generating personalized recommendations...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="improvement-plan mt-4 p-4 rounded-4 text-white" style="background: linear-gradient(135deg,#667eea 0%,#764ba2 100%);">
+                <h5 class="mb-3"><i class="bi bi-graph-up me-2"></i>Your Improvement Plan</h5>
+                <div id="improvementPlanContainer">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+                            <p class="small-muted mt-2">Creating your personalized improvement strategy...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="glass-card mb-3">
+                <h6 class="mb-3"><i class="bi bi-cpu me-2"></i>Model Intelligence <span class="correlation-badge ms-2">Real Metrics</span></h6>
+
+                <div class="mb-3">
+                    <h6 class="mb-1">Prediction Confidence</h6>
+                    <div class="progress progress-custom mb-2">
+                        <div class="progress-bar bg-success" id="accuracyProgress" style="width: 0%">0%</div>
+                    </div>
+                    <small class="small-muted" id="accuracyDescription">Calculating model accuracy...</small>
+                </div>
+
+                <div class="mb-3">
+                    <h6 class="mb-2">Feature Importance <span class="badge badge-sm bg-secondary">RandomForest</span></h6>
+                    <div id="featureImportanceContainer">
+                        <div class="text-center">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading features...</span></div>
+                            <small class="small-muted">Analyzing feature impacts...</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-secondary small-muted mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Our models trained on the dataset produce the metrics shown. Values are read from server analytics and training history.
+                </div>
+            </div>
+
+            <div class="glass-card mb-3">
+                <h6 class="mb-3"><i class="bi bi-speedometer2 me-2"></i>Performance Metrics <span class="correlation-badge ms-2">Live Data</span></h6>
+
+                <div class="stats-grid" id="performanceMetrics">
+                    <div class="stat-item">
+                        <div class="stat-value" id="accuracyValue">0%</div>
+                        <div class="stat-label">Accuracy (R² → %)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="r2Value">0.00</div>
+                        <div class="stat-label">R² Score</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="maeValue">0.00</div>
+                        <div class="stat-label">MAE</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="mseValue">0.00</div>
+                        <div class="stat-label">MSE</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="rmseValue">0.00</div>
+                        <div class="stat-label">RMSE</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="lossValue">-</div>
+                        <div class="stat-label">Loss / Val Loss</div>
+                    </div>
+                </div>
+
+                <div class="mt-3 small-muted">
+                    <div>Data points: <strong id="dataPoints">0</strong></div>
+                </div>
+            </div>
+
+            <div class="glass-card mb-3">
+                <h6 class="mb-3"><i class="bi bi-database me-2"></i>Dataset Statistics</h6>
+                <div id="datasetStatsContainer">
+                    <div class="text-center"><div class="spinner-border spinner-border-sm text-primary" role="status"></div><small class="small-muted">Loading dataset analysis...</small></div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h6 class="mb-3"><i class="bi bi-trophy me-2"></i>Performance Benchmarks</h6>
+                <div id="performanceBenchmarks">
+                    <div class="text-center"><div class="spinner-border spinner-border-sm text-primary" role="status"></div><small class="small-muted">Loading benchmarks...</small></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="glass-card">
+                <h5 class="mb-3"><i class="bi bi-bar-chart-line me-2"></i>Training History (last saved)</h5>
+                <div id="trainingHistorySection">
+                    <div class="text-center"><div class="spinner-border spinner-border-sm text-primary" role="status"></div><small class="small-muted">Loading training history...</small></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let currentTheme = localStorage.getItem('theme') || 'light';
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    const themeIcon = document.getElementById('themeIcon');
+    themeIcon.className = theme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+    localStorage.setItem('theme', theme);
+}
+function toggleTheme() {
+    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    applyTheme(currentTheme);
+}
+
+async function checkAuth() {
+    try {
+        const response = await fetch('/api/user');
+        const data = await response.json();
+        if (data.ok) {
+            document.getElementById('userName').textContent = data.user.full_name || data.user.username;
+            document.getElementById('userEmail').textContent = data.user.email || '';
+            await Promise.all([
+                loadRealInsights(),
+                loadFeatureImportance(),
+                loadPerformanceMetrics(),
+                loadDatasetStats(),
+                loadPersonalizedRecommendations(),
+                loadImprovementPlan(),
+                loadPerformanceBenchmarks()
+            ]);
+        } else {
+            window.location.href = '/login';
+        }
+    } catch (err) {
+        console.error('Auth check failed', err);
+        window.location.href = '/login';
+    }
+}
+
+async function logout() {
+    try {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = '/login';
+    } catch (err) {
+        console.error('Logout failed', err);
+    }
+}
+
+
+async function loadRealInsights() {
+    try {
+        const res = await fetch('/api/dataset_stats');
+        const data = await res.json();
+        const container = document.getElementById('realInsightsContainer');
+
+        if (!data.ok) {
+            container.innerHTML = `<div class="alert alert-warning">Unable to load insights.</div>`;
+            return;
+        }
+
+        let html = '';
+
+        if (data.correlations && (data.correlations.Previous_Scores || data.correlations.Hours_Studied)) {
+            const corrPS = data.correlations.Previous_Scores ? (data.correlations.Previous_Scores * 100).toFixed(1) : null;
+            const corrH = data.correlations.Hours_Studied ? (data.correlations.Hours_Studied * 100).toFixed(1) : null;
+            if (corrPS) {
+                html += `<div class="insight-card alert alert-info"><div class="d-flex align-items-center"><i class="bi bi-graph-up-arrow me-3 fs-3"></i><div><h6 class="mb-1">Previous Scores Correlation</h6><div class="small-muted">Previous scores correlate ≈ <strong>${corrPS}%</strong> with final exam.</div></div></div></div>`;
+            }
+            if (corrH) {
+                html += `<div class="insight-card alert alert-success"><div class="d-flex align-items-center"><i class="bi bi-clock me-3 fs-3"></i><div><h6 class="mb-1">Hours Studied Impact</h6><div class="small-muted">Hours studied correlate ≈ <strong>${corrH}%</strong> with final exam.</div></div></div></div>`;
+            }
+        }
+
+        if (data.study_time_impact && Object.keys(data.study_time_impact).length) {
+            const keys = Object.keys(data.study_time_impact).slice(0,4);
+            html += `<div class="insight-card alert alert-light"><h6 class="mb-1">Study time samples</h6><div class="small-muted">Sample average scores by study hours:</div><ul class="small-muted mb-0">`;
+            for (const k of keys) html += `<li>${k} hrs → ${data.study_time_impact[k]}</li>`;
+            html += `</ul></div>`;
+        }
+
+        if (data.attendance_impact && Object.keys(data.attendance_impact).length) {
+            html += `<div class="insight-card alert alert-warning"><h6 class="mb-1">Attendance impact</h6><div class="small-muted">Attendance groups average scores shown below.</div></div>`;
+        }
+
+        if (!html) html = `<div class="alert alert-info small-muted">No notable insights were detected on the dataset.</div>`;
+
+        container.innerHTML = html;
+    } catch (err) {
+        console.error('loadRealInsights error', err);
+        document.getElementById('realInsightsContainer').innerHTML = `<div class="alert alert-warning">Failed to load insights.</div>`;
+    }
+}
+
+
+async function loadFeatureImportance() {
+    try {
+        const res = await fetch('/api/feature_importance');
+        const data = await res.json();
+        const container = document.getElementById('featureImportanceContainer');
+
+        if (!data.ok || !data.feature_importance) {
+            container.innerHTML = `<div class="small-muted text-center">No feature data available.</div>`;
+            return;
+        }
+
+        let html = '';
+        const pairs = Object.entries(data.feature_importance).slice(0, 8);
+        pairs.forEach(([f, imp]) => {
+            html += `
+                <div class="mb-2">
+                    <small class="d-block">${f}</small>
+                    <div class="d-flex align-items-center">
+                        <div class="progress progress-custom flex-grow-1 me-2" style="height:8px;">
+                            <div class="progress-bar bg-primary" style="width:${imp}%"></div>
+                        </div>
+                        <span class="impact-value">${Math.round(imp)}%</span>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    } catch (err) {
+        console.error('loadFeatureImportance error', err);
+        document.getElementById('featureImportanceContainer').innerHTML = `<div class="small-muted text-center">Failed to load feature importance.</div>`;
+    }
+}
+
+
+async function loadPerformanceMetrics() {
+    try {
+        const [aRes, mRes] = await Promise.all([
+            fetch('/api/analytics'),
+            fetch('/api/model_plot_data')
+        ]);
+
+        const analytics = await safeJson(aRes);
+        const mp = await safeJson(mRes);
+
+        let nnMetrics = null;
+        let dataPoints = '600+';
+        if (analytics && analytics.ok && analytics.stats) {
+            dataPoints = analytics.stats.total_predictions || '600+';
+            if (analytics.stats.model_performance && analytics.stats.model_performance['Neural Network']) {
+                nnMetrics = analytics.stats.model_performance['Neural Network'];
+            } else if (analytics.stats.model_performance && analytics.stats.model_performance['NN']) {
+                nnMetrics = analytics.stats.model_performance['NN'];
+            }
+        }
+
+        if (!nnMetrics && mp && mp.ok && mp.predictions_vs_actual && mp.predictions_vs_actual.y_true && mp.predictions_vs_actual.y_pred) {
+            const y_true = mp.predictions_vs_actual.y_true.map(Number);
+            const y_pred = mp.predictions_vs_actual.y_pred.map(Number);
+            if (y_true.length && y_true.length === y_pred.length) {
+                const metrics = computeRegressionMetrics(y_true, y_pred);
+                nnMetrics = {
+                    'MAE': metrics.MAE,
+                    'MSE': metrics.MSE,
+                    'R2': metrics.R2
+                };
+            }
+        }
+
+        if (!nnMetrics) {
+            document.getElementById('accuracyValue').textContent = 'N/A';
+            document.getElementById('r2Value').textContent = 'N/A';
+            document.getElementById('maeValue').textContent = 'N/A';
+            document.getElementById('mseValue').textContent = 'N/A';
+            document.getElementById('rmseValue').textContent = 'N/A';
+            document.getElementById('dataPoints').textContent = dataPoints;
+        } else {
+            const mae = Number(nnMetrics.MAE || nnMetrics.MAE_ || nnMetrics.mae || 0);
+            const mse = Number(nnMetrics.MSE || nnMetrics.MSE_ || nnMetrics.mse || 0);
+            const r2  = Number(nnMetrics.R2 || nnMetrics.R2_ || nnMetrics.r2 || 0);
+
+            const rmse = Math.sqrt(Math.max(0, mse));
+
+            const accuracyPercent = Math.round(Math.max(0, Math.min(100, r2 * 100)));
+
+            document.getElementById('accuracyProgress').style.width = accuracyPercent + '%';
+            document.getElementById('accuracyProgress').textContent = accuracyPercent + '%';
+            document.getElementById('accuracyDescription').textContent = `Derived from R² (Neural Network)`;
+
+            document.getElementById('accuracyValue').textContent = accuracyPercent + '%';
+            document.getElementById('r2Value').textContent = (isFinite(r2) ? r2.toFixed(3) : '0.000');
+            document.getElementById('maeValue').textContent = (isFinite(mae) ? mae.toFixed(3) : '0.000');
+            document.getElementById('mseValue').textContent = (isFinite(mse) ? mse.toFixed(3) : '0.000');
+            document.getElementById('rmseValue').textContent = (isFinite(rmse) ? rmse.toFixed(3) : '0.000');
+            document.getElementById('dataPoints').textContent = dataPoints;
+        }
+
+        if (mp && mp.ok && mp.history) {
+            const history = mp.history;
+            let lossLast = null, valLossLast = null;
+            if (history.loss && history.loss.length) lossLast = history.loss[history.loss.length - 1];
+            if (history.val_loss && history.val_loss.length) valLossLast = history.val_loss[history.val_loss.length - 1];
+
+            let histHtml = `<div class="row"><div class="col-12 mb-2"><small class="small-muted">Training epochs: ${history.loss ? history.loss.length : 'N/A'}</small></div>`;
+            if (lossLast !== null || valLossLast !== null) {
+                histHtml += `<div class="col-12"><div class="d-flex justify-content-between"><div><strong>Loss:</strong> ${lossLast !== null ? Number(lossLast).toFixed(3) : 'N/A'}</div><div><strong>Val Loss:</strong> ${valLossLast !== null ? Number(valLossLast).toFixed(3) : 'N/A'}</div></div></div>`;
+            }
+
+            if (history.root_mean_squared_error && history.root_mean_squared_error.length) {
+                const rmseTrainLast = history.root_mean_squared_error[history.root_mean_squared_error.length - 1];
+                histHtml += `<div class="col-12 mt-2"><div class="d-flex justify-content-between"><div><strong>Train RMSE:</strong> ${Number(rmseTrainLast).toFixed(3)}</div>`;
+                if (history.val_root_mean_squared_error && history.val_root_mean_squared_error.length) {
+                    const rmseValLast = history.val_root_mean_squared_error[history.val_root_mean_squared_error.length - 1];
+                    histHtml += `<div><strong>Val RMSE:</strong> ${Number(rmseValLast).toFixed(3)}</div>`;
+                }
+                histHtml += `</div></div>`;
+            }
+
+            histHtml += `</div>`;
+            document.getElementById('trainingHistorySection').innerHTML = histHtml;
+            if (lossLast !== null || valLossLast !== null) {
+                document.getElementById('lossValue').textContent = `${lossLast !== null ? Number(lossLast).toFixed(3) : '-'} / ${valLossLast !== null ? Number(valLossLast).toFixed(3) : '-'}`;
+            }
+        } else {
+            document.getElementById('trainingHistorySection').innerHTML = `<div class="small-muted">No training history available.</div>`;
+        }
+
+    } catch (err) {
+        console.error('loadPerformanceMetrics error', err);
+        document.getElementById('performanceMetrics').innerHTML = `<div class="small-muted">Failed to load metrics.</div>`;
+    }
+}
+
+
+async function loadDatasetStats() {
+    try {
+        const res = await fetch('/api/dataset_stats');
+        const data = await res.json();
+        const container = document.getElementById('datasetStatsContainer');
+
+        if (!data.ok || !data.stats) {
+            container.innerHTML = `<div class="small-muted">Dataset stats not available.</div>`;
+            return;
+        }
+
+        const s = data.stats;
+        const html = `
+            <div class="mb-2"><small class="small-muted">Total Students</small><div><strong>${s.total_students}</strong></div></div>
+            <div class="mb-2"><small class="small-muted">Avg Final Score</small><div><strong>${s.average_final_score}</strong></div></div>
+            <div class="mb-2"><small class="small-muted">Excellent (>=90)</small><div><strong>${s.excellent_students}</strong></div></div>
+            <div class="mb-2"><small class="small-muted">At Risk (&lt;50)</small><div><strong>${s.at_risk_students}</strong></div></div>
+            <div class="mb-2"><small class="small-muted">Avg Hours Studied</small><div><strong>${s.average_hours_studied} hrs/week</strong></div></div>
+        `;
+        container.innerHTML = html;
+    } catch (err) {
+        console.error('loadDatasetStats error', err);
+        document.getElementById('datasetStatsContainer').innerHTML = `<div class="small-muted">Failed to load dataset stats.</div>`;
+    }
+}
+
+/* ---------------------------
+   Personalized Recommendations & Improvement Plan & Benchmarks
+   --------------------------- */
+async function loadPersonalizedRecommendations() {
+    try {
+        const res = await fetch('/api/personal_recommendations');
+        const data = await res.json();
+        const container = document.getElementById('personalizedRecommendations');
+
+        if (!data.ok || !data.recommendations) {
+            container.innerHTML = `<div class="small-muted">No personalized recommendations yet. Make predictions to get recommendations.</div>`;
+            return;
+        }
+
+        let html = '<div class="row g-2">';
+        data.recommendations.forEach(rec => {
+            const priorityClass = rec.priority === 'high' ? 'border-danger' : rec.priority === 'medium' ? 'border-warning' : 'border-info';
+            html += `
+                <div class="col-md-6">
+                    <div class="card h-100 p-2 ${priorityClass}" style="border-left-width:4px;">
+                        <div class="card-body p-2">
+                            <div class="d-flex align-items-start">
+                                <i class="bi ${rec.icon} fs-3 me-2" style="color:var(--primary)"></i>
+                                <div>
+                                    <h6 class="mb-1">${rec.title} <span class="badge bg-${rec.priority === 'high' ? 'danger' : rec.priority === 'medium' ? 'warning text-dark' : 'info'} badge-sm">${rec.priority}</span></h6>
+                                    <p class="small-muted mb-1">${rec.message}</p>
+                                    <small class="text-primary"><strong>Action:</strong> ${rec.action}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    } catch (err) {
+        console.error('loadPersonalizedRecommendations error', err);
+        document.getElementById('personalizedRecommendations').innerHTML = `<div class="small-muted">Failed to load recommendations.</div>`;
+    }
+}
+
+async function loadImprovementPlan() {
+    try {
+        const res = await fetch('/api/grade_improvement_plan');
+        const data = await res.json();
+        const container = document.getElementById('improvementPlanContainer');
+        if (!data.ok || !data.plan) {
+            container.innerHTML = `<div class="small-muted">No improvement plan available.</div>`;
+            return;
+        }
+        const plan = data.plan;
+        let html = `
+            <div class="card"><div class="card-body p-3">
+                <h6 class="mb-1 text-dark">Target: ${plan.target_score}</h6>
+                <p class="small-muted mb-2">Current: ${plan.current_score} — Timeframe: ${plan.timeframe}</p>
+                <div class="mb-3 progress" style="height:10px"><div class="progress-bar bg-success" style="width:${Math.min(100, (plan.current_score / Math.max(1, plan.target_score)) * 100)}%"></div></div>
+        `;
+        plan.actions.forEach((a, idx) => {
+            html += `<div class="mb-2"><strong>${idx+1}. ${a.area}</strong><div class="small-muted">${a.action} — <span class="text-success">${a.impact}</span> <span class="badge bg-secondary ms-2">${a.timeline}</span></div></div>`;
+        });
+        html += `</div></div>`;
+        container.innerHTML = html;
+    } catch (err) {
+        console.error('loadImprovementPlan error', err);
+        document.getElementById('improvementPlanContainer').innerHTML = `<div class="small-muted">Failed to load improvement plan.</div>`;
+    }
+}
+
+async function loadPerformanceBenchmarks() {
+    try {
+        const res = await fetch('/api/performance_benchmarks');
+        const data = await res.json();
+        const container = document.getElementById('performanceBenchmarks');
+        if (!data.ok || !data.benchmarks) {
+            container.innerHTML = `<div class="small-muted">Benchmarks not available.</div>`;
+            return;
+        }
+        const b = data.benchmarks;
+        const html = `
+            <div class="mb-2"><small class="small-muted">User Avg</small><div><strong>${b.user_stats.average_score ?? b.user_stats.average_score ?? 0}</strong></div></div>
+            <div class="mb-2"><small class="small-muted">Dataset Avg</small><div><strong>${b.dataset_benchmarks.average_score}</strong></div></div>
+            <div class="mb-2"><small class="small-muted">Top 25%</small><div><strong>${b.dataset_benchmarks.top_25_percent}</strong></div></div>
+            <div class="mt-2"><small class="small-muted">${b.comparison ?? ''}</small></div>
+        `;
+        container.innerHTML = html;
+    } catch (err) {
+        console.error('loadPerformanceBenchmarks error', err);
+        document.getElementById('performanceBenchmarks').innerHTML = `<div class="small-muted">Failed to load benchmarks.</div>`;
+    }
+}
+
+/* ---------------------------
+   Utilities
+   --------------------------- */
+async function safeJson(fetchResp) {
+    try {
+        if (!fetchResp.ok) {
+            // return object with ok:false
+            const text = await fetchResp.text().catch(()=>null);
+            return { ok: false, error: 'HTTP ' + fetchResp.status + (text ? ' - ' + text : '')};
+        }
+        return await fetchResp.json();
+    } catch (err) {
+        return { ok: false, error: String(err) };
+    }
+}
+
+function computeRegressionMetrics(y_true, y_pred) {
+    // returns {MAE, MSE, R2}
+    const n = y_true.length;
+    if (!n) return {MAE:0,MSE:0,R2:0};
+    let se = 0, ae = 0;
+    let mean = 0;
+    for (let i=0;i<n;i++) mean += y_true[i];
+    mean /= n;
+    let ss_tot = 0;
+    for (let i=0;i<n;i++) {
+        const err = y_true[i] - y_pred[i];
+        se += err*err;
+        ae += Math.abs(err);
+        const diff = y_true[i] - mean;
+        ss_tot += diff*diff;
+    }
+    const mse = se / n;
+    const mae = ae / n;
+    const r2 = (ss_tot === 0) ? 1.0 : (1 - (se / ss_tot));
+    return {MAE: mae, MSE: mse, R2: r2};
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    applyTheme(currentTheme);
+    checkAuth();
+});
+</script>
+</body>
+</html>

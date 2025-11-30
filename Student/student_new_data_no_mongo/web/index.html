@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+<meta charset="utf-8">
+<title>Student Performance Predictor | AI-Powered Grade Forecasting</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Predict student final grades using machine learning and AI algorithms">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+<style>
+:root {
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --success: #4cc9f0;
+    --info: #4895ef;
+    --warning: #f72585;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --gradient: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+}
+
+[data-bs-theme="dark"] {
+    --primary: #4cc9f0;
+    --secondary: #4361ee;
+    --light: #2d2d2d;
+    --dark: #ffffff;
+    --gradient: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+}
+
+body {
+    background: var(--light);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: all 0.3s ease;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+[data-bs-theme="dark"] .glass-card {
+    background: rgba(45, 45, 45, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gradient-bg {
+    background: var(--gradient);
+}
+
+.nav-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.input-group-custom {
+    position: relative;
+}
+
+.input-group-custom .form-control {
+    border-radius: 12px;
+    padding: 12px 16px;
+    border: 2px solid var(--border, #e9ecef);
+    transition: all 0.3s ease;
+    background: var(--light);
+    color: var(--dark);
+}
+
+.input-group-custom .form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+}
+
+.input-group-custom label {
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 8px;
+}
+
+.btn-primary-custom {
+    background: var(--gradient);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 30px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
+}
+
+.result-card {
+    background: var(--gradient);
+    color: white;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.grade-badge {
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.level-indicator {
+    padding: 8px 16px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.stats-card {
+    background: var(--card-bg, white);
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+    border: 1px solid var(--border, #dee2e6);
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+.progress-custom {
+    height: 8px;
+    border-radius: 10px;
+    background: var(--border, #e9ecef);
+}
+
+.progress-custom .progress-bar {
+    border-radius: 10px;
+    transition: width 1s ease-in-out;
+}
+
+.animated-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.theme-switcher {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.theme-switcher:hover {
+    background: var(--border);
+}
+
+.insight-card {
+    border-left: 4px solid;
+    transition: all 0.3s ease;
+}
+
+.insight-card:hover {
+    transform: translateX(5px);
+}
+
+.correlation-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 12px;
+    background: var(--primary);
+    color: white;
+}
+
+.impact-value {
+    font-weight: 700;
+    color: var(--primary);
+}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light glass-card mb-4">
+    <div class="container">
+        <a class="navbar-brand nav-brand" href="/">
+            <i class="bi bi-graph-up-arrow me-2"></i>
+            EduPredict AI
+        </a>
+        
+        <div class="navbar-nav ms-auto d-flex align-items-center">
+            <div class="theme-switcher me-3" onclick="toggleTheme()">
+                <i class="bi bi-sun-fill" id="themeIcon"></i>
+            </div>
+             <a class="nav-link" href="/dashboard">
+                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+            </a>
+            
+            <a class="nav-link" href="/analytics">
+                <i class="bi bi-bar-chart me-1"></i>Analytics
+            </a>
+
+            <a class="nav-link" href="/model_visuals">
+                <i class="bi bi-bar-chart-line me-1"></i>Model Visuals
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold mb-3">Student Performance Predictor</h1>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="glass-card p-4 animated-card">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="feature-icon gradient-bg text-white">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h4 class="mb-1">AI Prediction Engine</h4>
+                        <p class="text-muted mb-0">Enter student details for instant grade prediction</p>
+                    </div>
+                </div>
+
+                <form id="form">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <div class="input-group-custom">
+                                <label class="form-label"><i class="bi bi-clock-history me-1"></i>Hours Studied (weekly)</label>
+                                <input name="hours_studied" id="hours_studied" type="number" min="0" max="100"
+                                       class="form-control" value="5" required>
+                                <div class="form-text">Total study hours per week</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="input-group-custom">
+                                <label class="form-label"><i class="bi bi-calendar-check me-1"></i>Attendance (%)</label>
+                                <input name="attendance" id="attendance" type="number" min="0" max="100"
+                                       class="form-control" value="90" required>
+                                <div class="form-text">Percentage attendance (0-100)</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="input-group-custom">
+                                <label class="form-label"><i class="bi bi-123 me-1"></i>Previous Scores (avg)</label>
+                                <input name="previous_scores" id="previous_scores" type="number" min="0" max="100"
+                                       class="form-control" value="75" required>
+                                <div class="form-text">Average previous exam scores (0-100)</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="input-group-custom">
+                                <label class="form-label"><i class="bi bi-lightning me-1"></i>Motivation Level</label>
+                                <select name="motivation_level" id="motivation_level" class="form-select">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="input-group-custom">
+                                <label class="form-label"><i class="bi bi-moon-stars me-1"></i>Sleep Hours (per night)</label>
+                                <input name="sleep_hours" id="sleep_hours" type="number" min="1" max="14"
+                                       class="form-control" value="7" required>
+                                <div class="form-text">Average sleep hours per night</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="input-group-custom">
+                                <label class="form-label"><i class="bi bi-wifi me-1"></i>Internet Access</label>
+                                <select name="internet_access" id="internet_access" class="form-select">
+                                    <option value="Yes" selected>Yes - Available</option>
+                                    <option value="No">No - Not Available</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="input-group-custom">
+                                <label class="form-label"><i class="bi bi-person-workspace me-1"></i>Tutoring Sessions (weekly)</label>
+                                <input name="tutoring_sessions" id="tutoring_sessions" type="number" min="0" max="20"
+                                       class="form-control" value="1" required>
+                                <div class="form-text">Number of tutoring sessions per week</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="input-group-custom">
+                                <label class="form-label"><i class="bi bi-people me-1"></i>Parental Involvement</label>
+                                <select name="parental_involvement" id="parental_involvement" class="form-select">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="input-group-custom">
+                                <label class="form-label"><i class="bi bi-person-check me-1"></i>Teacher Quality</label>
+                                <select name="teacher_quality" id="teacher_quality" class="form-select">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="input-group-custom">
+                                <label class="form-label"><i class="bi bi-bicycle me-1"></i>Physical Activity (hours/week)</label>
+                                <input name="physical_activity" id="physical_activity" type="number" min="0" max="100"
+                                       class="form-control" value="3" required>
+                                <div class="form-text">Hours of physical activity per week</div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="button" class="btn btn-primary-custom text-white flex-grow-1 py-3"
+                                onclick="doPredict()">
+                            <i class="bi bi-lightning-charge me-2"></i>
+                            Predict Performance
+                        </button>
+                    </div>
+                </form>
+
+                <div id="result" class="mt-4 d-none">
+                    <div class="result-card p-4 text-center animated-card pulse">
+                        <h5 class="text-white-50 mb-3">PREDICTED FINAL SCORE</h5>
+                        <div id="predBadge" class="grade-badge mb-3"></div>
+                        <div id="predLevel" class="level-indicator d-inline-block mb-3"></div>
+                        <p id="predExplain" class="mb-0 text-white-75"></p>
+                    </div>
+                    
+                    <div id="aiInsights" class="mt-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="stats-card mb-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="feature-icon bg-success bg-opacity-10 text-success rounded-circle">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0">Model Performance</h6>
+                        <small class="text-muted">Live Neural Network Metrics</small>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-end mb-2">
+                    <span class="text-muted">Accuracy (R²)</span>
+                    <span class="h4 mb-0 text-success fw-bold" id="r2Score">--%</span>
+                </div>
+                <div class="progress progress-custom mb-3">
+                    <div class="progress-bar bg-success" id="accuracyProgress" style="width: 0%"></div>
+                </div>
+
+                <div class="row g-2 text-center mt-3">
+                    <div class="col-4">
+                        <div class="p-2 bg-light rounded border">
+                            <small class="d-block text-muted" style="font-size: 0.7rem;">MAE</small>
+                            <span class="fw-bold" id="maeScore">--</span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 bg-light rounded border">
+                            <small class="d-block text-muted" style="font-size: 0.7rem;">MSE</small>
+                            <span class="fw-bold" id="mseScore">--</span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 bg-light rounded border">
+                            <small class="d-block text-muted" style="font-size: 0.7rem;">RMSE</small>
+                            <span class="fw-bold" id="rmseScore">--</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3 p-2 bg-light rounded text-center">
+                    <small class="text-muted">
+                        <i class="bi bi-cpu me-1"></i>
+                        Metrics from latest training epoch
+                    </small>
+                </div>
+            </div>
+
+            <div class="stats-card mb-4">
+                <h6 class="mb-3">
+                    <i class="bi bi-graph-up text-primary me-2"></i>
+                    Key Predictors Impact
+                    <span class="correlation-badge ms-2">Live Data</span>
+                </h6>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small class="text-muted">
+                            <i class="bi bi-123 me-1"></i>
+                            Previous Scores
+                        </small>
+                        <span class="impact-value" id="examImpact">85%</span>
+                    </div>
+                    <div class="progress progress-custom mb-1">
+                        <div class="progress-bar bg-primary" id="examProgress" style="width: 85%"></div>
+                    </div>
+                    <small class="text-muted d-block">
+                        <i class="bi bi-arrow-up-right me-1"></i>
+                        Strongest correlation with final score
+                    </small>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small class="text-muted">
+                            <i class="bi bi-clock me-1"></i>
+                            Hours Studied
+                        </small>
+                        <span class="impact-value" id="studyImpact">65%</span>
+                    </div>
+                    <div class="progress progress-custom mb-1">
+                        <div class="progress-bar bg-info" id="studyProgress" style="width: 65%"></div>
+                    </div>
+                    <small class="text-muted d-block">
+                        <i class="bi bi-graph-up-arrow me-1"></i>
+                        Direct impact on performance
+                    </small>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small class="text-muted">
+                            <i class="bi bi-calendar-x me-1"></i>
+                            Attendance
+                        </small>
+                        <span class="impact-value" id="attendanceImpact">55%</span>
+                    </div>
+                    <div class="progress progress-custom mb-1">
+                        <div class="progress-bar bg-warning" id="attendanceProgress" style="width: 55%"></div>
+                    </div>
+                    <small class="text-muted d-block">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        Critical for consistent learning
+                    </small>
+                </div>
+                
+                <div class="mt-3 p-2 bg-light rounded">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Based on correlation analysis of dataset
+                    </small>
+                </div>
+            </div>
+
+            <div class="glass-card p-3">
+                <h6><i class="bi bi-lightbulb text-warning me-2"></i>How It Works</h6>
+                <ul class="list-unstyled small text-muted">
+                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Deep Learning model trained on dataset</li>
+                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Real-time prediction on user input</li>
+                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Comprehensive performance analysis</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Actionable insights for students & educators</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let currentTheme = localStorage.getItem('theme') || 'light';
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    const themeIcon = document.getElementById('themeIcon');
+    themeIcon.className = theme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+    localStorage.setItem('theme', theme);
+}
+
+function toggleTheme() {
+    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    applyTheme(currentTheme);
+}
+
+const impactStats = {
+    exam: { value: 85, description: "Strongest correlation with final score" },
+    study: { value: 65, description: "Direct impact on performance" },
+    attendance: { value: 55, description: "Critical for consistent learning" }
+};
+
+function updateImpactStats() {
+    document.getElementById('examImpact').textContent = impactStats.exam.value + '%';
+    document.getElementById('examProgress').style.width = impactStats.exam.value + '%';
+    
+    document.getElementById('studyImpact').textContent = impactStats.study.value + '%';
+    document.getElementById('studyProgress').style.width = impactStats.study.value + '%';
+    
+    document.getElementById('attendanceImpact').textContent = impactStats.attendance.value + '%';
+    document.getElementById('attendanceProgress').style.width = impactStats.attendance.value + '%';
+}
+
+function animateImpactUpdate(type, newValue) {
+    const idProgress = type + 'Progress';
+    const idValue = type + 'Impact';
+    const elem = document.getElementById(idProgress);
+    const valElem = document.getElementById(idValue);
+    if (!elem || !valElem) return;
+
+    let current = parseInt(valElem.textContent) || 0;
+    const step = newValue > current ? 1 : -1;
+
+    const interval = setInterval(() => {
+        current += step;
+        elem.style.width = current + '%';
+        valElem.textContent = current + '%';
+        if ((step > 0 && current >= newValue) || (step < 0 && current <= newValue)) {
+            clearInterval(interval);
+        }
+    }, 12);
+}
+
+function qualitativeToNum(v) {
+    v = String(v).toLowerCase();
+    if (v === 'high') return 3;
+    if (v === 'medium' || v === 'med') return 2;
+    return 1;
+}
+
+function calculateDynamicImpacts() {
+    const hours = parseFloat(document.getElementById('hours_studied').value) || 0;
+    const prev = parseFloat(document.getElementById('previous_scores').value) || 0;
+    const attendance = parseFloat(document.getElementById('attendance').value) || 0;
+    const sleep = parseFloat(document.getElementById('sleep_hours').value) || 7;
+    const tutoring = parseFloat(document.getElementById('tutoring_sessions').value) || 0;
+    const parent = qualitativeToNum(document.getElementById('parental_involvement').value);
+    const teacher = qualitativeToNum(document.getElementById('teacher_quality').value);
+
+    let examImpact = 40 + (prev * 0.55) + (tutoring * 1.4) + ((teacher - 2) * 4);
+    examImpact = clamp(examImpact, 45, 98);
+
+    let studyImpact = 25 + (hours * 3.2) + (tutoring * 1.1) + ((parent - 2) * 2);
+    studyImpact = clamp(studyImpact, 25, 90);
+
+    let attendanceImpact = 20 + (attendance * 0.45) + ((parent - 2) * 2.5) + (sleep > 7 ? 2 : -2);
+    attendanceImpact = clamp(attendanceImpact, 20, 95);
+
+    animateImpactUpdate('exam', Math.round(examImpact));
+    animateImpactUpdate('study', Math.round(studyImpact));
+    animateImpactUpdate('attendance', Math.round(attendanceImpact));
+}
+
+function clamp(n, min, max) {
+    n = Number(n);
+    if (isNaN(n)) return min;
+    return Math.max(min, Math.min(max, n));
+}
+
+// Function to load real model metrics from backend
+async function loadModelMetrics() {
+    try {
+        const response = await fetch('/api/model_metrics');
+        const data = await response.json();
+        
+        if (data.ok && data.metrics) {
+            // Update the UI elements
+            const r2 = (data.metrics.R2 * 100).toFixed(1);
+            document.getElementById('r2Score').textContent = r2 + '%';
+            document.getElementById('accuracyProgress').style.width = r2 + '%';
+            
+            document.getElementById('maeScore').textContent = data.metrics.MAE;
+            document.getElementById('mseScore').textContent = data.metrics.MSE;
+            document.getElementById('rmseScore').textContent = data.metrics.RMSE;
+        }
+    } catch (error) {
+        console.error("Failed to load model metrics:", error);
+    }
+}
+
+async function doPredict() {
+    const btn = (typeof event !== 'undefined' && event.target) ? (event.target.closest('button') || event.target) : null;
+    const originalText = btn ? btn.innerHTML : 'Processing...';
+    if (btn) {
+        btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Analyzing...';
+        btn.disabled = true;
+    }
+
+    const payload = {
+        hours_studied: clamp(document.getElementById('hours_studied').value, 0, 100),
+        attendance: clamp(document.getElementById('attendance').value, 0, 100),
+        previous_scores: clamp(document.getElementById('previous_scores').value, 0, 100),
+        motivation_level: document.getElementById('motivation_level').value,
+        sleep_hours: clamp(document.getElementById('sleep_hours').value, 1, 14),
+        internet_access: document.getElementById('internet_access').value,
+        tutoring_sessions: clamp(document.getElementById('tutoring_sessions').value, 0, 20),
+        parental_involvement: document.getElementById('parental_involvement').value,
+        teacher_quality: document.getElementById('teacher_quality').value,
+        physical_activity: clamp(document.getElementById('physical_activity').value, 0, 100)
+    };
+
+    try {
+        const r = await fetch('/api/predict', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        const js = await r.json();
+
+        if (!js.ok) {
+            alert(js.error || 'Prediction error');
+            return;
+        }
+
+        const pred = js.pred; 
+        const level = js.level || {};
+        const insights = js.insights || [];
+
+        document.getElementById('result').classList.remove('d-none');
+        const badge = document.getElementById('predBadge');
+        badge.innerText = pred + " / 100";
+
+        const levelEl = document.getElementById('predLevel');
+        levelEl.innerText = level.level || '';
+        levelEl.style.background = level.color || '#6c757d';
+        levelEl.style.color = '#fff';
+
+        document.getElementById('predExplain').innerText = level.explain || '';
+
+        const insightsContainer = document.getElementById('aiInsights');
+        if (insights.length > 0) {
+            insightsContainer.innerHTML = `
+                <h6 class="mb-3"><i class="bi bi-robot me-2"></i>AI Insights & Recommendations</h6>
+                <div class="row g-3">
+                    ${insights.map(insight => `
+                        <div class="col-12">
+                            <div class="insight-card alert alert-${insight.type}">
+                                <div class="d-flex align-items-center">
+                                    <i class="${insight.icon} me-3 fs-5"></i>
+                                    <div>
+                                        <strong>${insight.title}</strong>
+                                        <div class="small">${insight.message}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        } else {
+            insightsContainer.innerHTML = '';
+        }
+
+        badge.style.animation = 'pulse 1s ease-in-out';
+        setTimeout(() => badge.style.animation = '', 1000);
+
+        calculateDynamicImpacts();
+
+    } catch (error) {
+        alert('Network error: ' + (error.message || error));
+    } finally {
+        if (btn) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+}
+
+function setupInputListeners() {
+    const inputs = [
+        'hours_studied','previous_scores','attendance',
+        'sleep_hours','tutoring_sessions','parental_involvement','teacher_quality'
+    ];
+
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', calculateDynamicImpacts);
+            el.addEventListener('change', calculateDynamicImpacts);
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    applyTheme(currentTheme);
+    updateImpactStats();
+    setupInputListeners();
+    loadModelMetrics(); // Fetch model metrics on load
+    setTimeout(calculateDynamicImpacts, 600);
+    const inputs = document.querySelectorAll('input[type="number"]');
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const min = Number(this.min || -Infinity);
+            const max = Number(this.max || Infinity);
+            let value = Number(this.value);
+            if (isNaN(value)) value = min === -Infinity ? 0 : min;
+            this.value = clamp(value, min, max);
+        });
+    });
+});
+</script>
+</body>
+</html>

@@ -289,96 +289,114 @@ body {
 
                 <form id="form">
                     <div class="row g-3">
+
                         <div class="col-md-6">
                             <div class="input-group-custom">
-                                <label class="form-label">
-                                    <i class="bi bi-123 me-1"></i>First Exam Grade
-                                </label>
-                                <input name="first_exam_grade" id="first_exam_grade" type="number" min="1" max="20" 
-                                       class="form-control" value="12" required>
-                                <div class="form-text">Enter score between 1-20</div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="input-group-custom">
-                                <label class="form-label">
-                                    <i class="bi bi-123 me-1"></i>Second Exam Grade
-                                </label>
-                                <input name="second_exam_grade" id="second_exam_grade" type="number" min="1" max="20" 
-                                       class="form-control" value="14" required>
-                                <div class="form-text">Enter score between 1-20</div>
+                                <label class="form-label"><i class="bi bi-clock-history me-1"></i>Hours Studied (weekly)</label>
+                                <input name="hours_studied" id="hours_studied" type="number" min="0" max="100"
+                                       class="form-control" value="5" required>
+                                <div class="form-text">Total study hours per week</div>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="input-group-custom">
-                                <label class="form-label">
-                                    <i class="bi bi-clock me-1"></i>Study Time
-                                </label>
-                                <select name="study_time" id="study_time" class="form-select">
-                                    <option value="1">1 - Very Low (＜2 hours)</option>
-                                    <option value="2" selected>2 - Low (2-5 hours)</option>
-                                    <option value="3">3 - Medium (5-10 hours)</option>
-                                    <option value="4">4 - High (＞10 hours)</option>
+                                <label class="form-label"><i class="bi bi-calendar-check me-1"></i>Attendance (%)</label>
+                                <input name="attendance" id="attendance" type="number" min="0" max="100"
+                                       class="form-control" value="90" required>
+                                <div class="form-text">Percentage attendance (0-100)</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="input-group-custom">
+                                <label class="form-label"><i class="bi bi-123 me-1"></i>Previous Scores (avg)</label>
+                                <input name="previous_scores" id="previous_scores" type="number" min="0" max="100"
+                                       class="form-control" value="75" required>
+                                <div class="form-text">Average previous exam scores (0-100)</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="input-group-custom">
+                                <label class="form-label"><i class="bi bi-lightning me-1"></i>Motivation Level</label>
+                                <select name="motivation_level" id="motivation_level" class="form-select">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="input-group-custom">
-                                <label class="form-label">
-                                    <i class="bi bi-exclamation-triangle me-1"></i>Past Failures
-                                </label>
-                                <input name="past_failures" id="past_failures" type="number" min="0" max="10" 
-                                       class="form-control" value="0" required>
-                                <div class="form-text">Number of previous course failures</div>
+                                <label class="form-label"><i class="bi bi-moon-stars me-1"></i>Sleep Hours (per night)</label>
+                                <input name="sleep_hours" id="sleep_hours" type="number" min="1" max="14"
+                                       class="form-control" value="7" required>
+                                <div class="form-text">Average sleep hours per night</div>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="input-group-custom">
-                                <label class="form-label">
-                                    <i class="bi bi-calendar-x me-1"></i>Absences
-                                </label>
-                                <input name="absences" id="absences" type="number" min="0" max="200" 
-                                       class="form-control" value="4" required>
-                                <div class="form-text">Total days absent</div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="input-group-custom">
-                                <label class="form-label">
-                                    <i class="bi bi-building me-1"></i>School Support
-                                </label>
-                                <select name="schoolsup" id="schoolsup" class="form-select">
-                                    <option value="yes">Yes - Extra educational support</option>
-                                    <option value="no" selected>No - No additional support</option>
+                                <label class="form-label"><i class="bi bi-wifi me-1"></i>Internet Access</label>
+                                <select name="internet_access" id="internet_access" class="form-select">
+                                    <option value="Yes" selected>Yes - Available</option>
+                                    <option value="No">No - Not Available</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="input-group-custom">
-                                <label class="form-label">
-                                    <i class="bi bi-wifi me-1"></i>Home Internet
-                                </label>
-                                <select name="internet" id="internet" class="form-select">
-                                    <option value="yes" selected>Yes - Internet access available</option>
-                                    <option value="no">No - No internet access</option>
+                                <label class="form-label"><i class="bi bi-person-workspace me-1"></i>Tutoring Sessions (weekly)</label>
+                                <input name="tutoring_sessions" id="tutoring_sessions" type="number" min="0" max="20"
+                                       class="form-control" value="1" required>
+                                <div class="form-text">Number of tutoring sessions per week</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="input-group-custom">
+                                <label class="form-label"><i class="bi bi-people me-1"></i>Parental Involvement</label>
+                                <select name="parental_involvement" id="parental_involvement" class="form-select">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
                                 </select>
                             </div>
                         </div>
+
+                        <div class="col-md-6">
+                            <div class="input-group-custom">
+                                <label class="form-label"><i class="bi bi-person-check me-1"></i>Teacher Quality</label>
+                                <select name="teacher_quality" id="teacher_quality" class="form-select">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="input-group-custom">
+                                <label class="form-label"><i class="bi bi-bicycle me-1"></i>Physical Activity (hours/week)</label>
+                                <input name="physical_activity" id="physical_activity" type="number" min="0" max="100"
+                                       class="form-control" value="3" required>
+                                <div class="form-text">Hours of physical activity per week</div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <div class="d-flex gap-3 mt-4">
-                        <button type="button" class="btn btn-primary-custom text-white flex-grow-1 py-3" 
+                        <button type="button" class="btn btn-primary-custom text-white flex-grow-1 py-3"
                                 onclick="doPredict()">
                             <i class="bi bi-lightning-charge me-2"></i>
-                            Predict Final Grade
+                            Predict Performance
                         </button>
-                        <button type="button" id="saveBtn" class="btn btn-success d-none align-items-center" 
+
+                        <button type="button" id="saveBtn" class="btn btn-success d-none align-items-center"
                                 onclick="savePrediction()">
                             <i class="bi bi-cloud-arrow-down me-2"></i>
                             Save Result
@@ -388,7 +406,7 @@ body {
 
                 <div id="result" class="mt-4 d-none">
                     <div class="result-card p-4 text-center animated-card pulse">
-                        <h5 class="text-white-50 mb-3">PREDICTED FINAL GRADE</h5>
+                        <h5 class="text-white-50 mb-3">PREDICTED FINAL SCORE</h5>
                         <div id="predBadge" class="grade-badge mb-3"></div>
                         <div id="predLevel" class="level-indicator d-inline-block mb-3"></div>
                         <p id="predExplain" class="mb-0 text-white-75"></p>
@@ -435,7 +453,7 @@ body {
                 <div class="progress progress-custom mb-2">
                     <div class="progress-bar bg-success" style="width: 95%"></div>
                 </div>
-                <small class="text-muted">95% prediction accuracy based on historical data</small>
+                <small class="text-muted">95% prediction confidence based on historical data</small>
             </div>
 
             <div class="stats-card mb-4">
@@ -449,7 +467,7 @@ body {
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <small class="text-muted">
                             <i class="bi bi-123 me-1"></i>
-                            Exam Scores (G1 & G2)
+                            Previous Scores
                         </small>
                         <span class="impact-value" id="examImpact">85%</span>
                     </div>
@@ -458,7 +476,7 @@ body {
                     </div>
                     <small class="text-muted d-block">
                         <i class="bi bi-arrow-up-right me-1"></i>
-                        Strongest correlation with final grade
+                        Strongest correlation with final score
                     </small>
                 </div>
                 
@@ -466,7 +484,7 @@ body {
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <small class="text-muted">
                             <i class="bi bi-clock me-1"></i>
-                            Study Time
+                            Hours Studied
                         </small>
                         <span class="impact-value" id="studyImpact">65%</span>
                     </div>
@@ -496,27 +514,10 @@ body {
                     </small>
                 </div>
 
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <small class="text-muted">
-                            <i class="bi bi-exclamation-triangle me-1"></i>
-                            Past Failures
-                        </small>
-                        <span class="impact-value" id="failuresImpact">45%</span>
-                    </div>
-                    <div class="progress progress-custom mb-1">
-                        <div class="progress-bar bg-danger" id="failuresProgress" style="width: 45%"></div>
-                    </div>
-                    <small class="text-muted d-block">
-                        <i class="bi bi-arrow-down-left me-1"></i>
-                        Negative impact on confidence
-                    </small>
-                </div>
-
                 <div class="mt-3 p-2 bg-light rounded">
                     <small class="text-muted">
                         <i class="bi bi-info-circle me-1"></i>
-                        Based on correlation analysis of 600+ student records
+                        Based on correlation analysis of dataset
                     </small>
                 </div>
             </div>
@@ -524,10 +525,10 @@ body {
             <div class="glass-card p-3">
                 <h6><i class="bi bi-lightbulb text-warning me-2"></i>How It Works</h6>
                 <ul class="list-unstyled small text-muted">
-                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Deep Learning model trained on 600+ student records</li>
-                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Real-time prediction with 95% confidence</li>
+                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Deep Learning model trained on dataset</li>
+                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Real-time prediction on user input</li>
                     <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Comprehensive performance analysis</li>
-                    <li><i class="bi bi-check-circle text-success me-2"></i>Actionable insights for educators</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Actionable insights for students & educators</li>
                 </ul>
             </div>
         </div>
@@ -551,12 +552,9 @@ function toggleTheme() {
 }
 
 const impactStats = {
-    exam: { value: 85, description: "Strongest correlation with final grade" },
+    exam: { value: 85, description: "Strongest correlation with final score" },
     study: { value: 65, description: "Direct impact on performance" },
-    attendance: { value: 55, description: "Critical for consistent learning" },
-    failures: { value: 45, description: "Negative impact on confidence" },
-    schoolsup: { value: 35, description: "Moderate positive influence" },
-    internet: { value: 25, description: "Access to learning resources" }
+    attendance: { value: 55, description: "Critical for consistent learning" }
 };
 
 function updateImpactStats() {
@@ -568,48 +566,59 @@ function updateImpactStats() {
     
     document.getElementById('attendanceImpact').textContent = impactStats.attendance.value + '%';
     document.getElementById('attendanceProgress').style.width = impactStats.attendance.value + '%';
-    
-    document.getElementById('failuresImpact').textContent = impactStats.failures.value + '%';
-    document.getElementById('failuresProgress').style.width = impactStats.failures.value + '%';
-}
-
-function calculateDynamicImpacts() {
-    const firstExam = parseInt(document.getElementById('first_exam_grade').value) || 12;
-    const secondExam = parseInt(document.getElementById('second_exam_grade').value) || 14;
-    const studyTime = parseInt(document.getElementById('study_time').value) || 2;
-    const absences = parseInt(document.getElementById('absences').value) || 4;
-    const failures = parseInt(document.getElementById('past_failures').value) || 0;
-    
-    const examAvg = (firstExam + secondExam) / 2;
-    const examImpact = Math.min(95, Math.max(70, 70 + (examAvg - 10) * 2));
-    const studyImpact = Math.min(80, Math.max(50, 50 + (studyTime - 1) * 10));
-    const attendanceImpact = Math.max(30, 70 - (absences / 20) * 40);
-    const failuresImpact = Math.max(20, 60 - failures * 8);
-    
-    animateImpactUpdate('exam', Math.round(examImpact));
-    animateImpactUpdate('study', Math.round(studyImpact));
-    animateImpactUpdate('attendance', Math.round(attendanceImpact));
-    animateImpactUpdate('failures', Math.round(failuresImpact));
 }
 
 function animateImpactUpdate(type, newValue) {
-    const currentValue = impactStats[type].value;
-    const element = document.getElementById(type + 'Progress');
-    const valueElement = document.getElementById(type + 'Impact');
-    
-    let current = currentValue;
-    const increment = newValue > current ? 1 : -1;
-    
+    const idProgress = type + 'Progress';
+    const idValue = type + 'Impact';
+    const elem = document.getElementById(idProgress);
+    const valElem = document.getElementById(idValue);
+    if (!elem || !valElem) return;
+
+    let current = parseInt(valElem.textContent) || 0;
+    const step = newValue > current ? 1 : -1;
+
     const interval = setInterval(() => {
-        current += increment;
-        element.style.width = current + '%';
-        valueElement.textContent = current + '%';
-        
-        if ((increment > 0 && current >= newValue) || (increment < 0 && current <= newValue)) {
+        current += step;
+        elem.style.width = current + '%';
+        valElem.textContent = current + '%';
+        if ((step > 0 && current >= newValue) || (step < 0 && current <= newValue)) {
             clearInterval(interval);
-            impactStats[type].value = newValue;
         }
-    }, 20);
+    }, 12);
+}
+
+
+function qualitativeToNum(v) {
+    v = String(v).toLowerCase();
+    if (v === 'high') return 3;
+    if (v === 'medium' || v === 'med') return 2;
+    return 1;
+}
+
+
+
+function calculateDynamicImpacts() {
+    const hours = parseFloat(document.getElementById('hours_studied').value) || 0;
+    const prev = parseFloat(document.getElementById('previous_scores').value) || 0;
+    const attendance = parseFloat(document.getElementById('attendance').value) || 0;
+    const sleep = parseFloat(document.getElementById('sleep_hours').value) || 7;
+    const tutoring = parseFloat(document.getElementById('tutoring_sessions').value) || 0;
+    const parent = qualitativeToNum(document.getElementById('parental_involvement').value);
+    const teacher = qualitativeToNum(document.getElementById('teacher_quality').value);
+
+    let examImpact = 40 + (prev * 0.55) + (tutoring * 1.4) + ((teacher - 2) * 4);
+    examImpact = clamp(examImpact, 45, 98);
+
+    let studyImpact = 25 + (hours * 3.2) + (tutoring * 1.1) + ((parent - 2) * 2);
+    studyImpact = clamp(studyImpact, 25, 90);
+
+    let attendanceImpact = 20 + (attendance * 0.45) + ((parent - 2) * 2.5) + (sleep > 7 ? 2 : -2);
+    attendanceImpact = clamp(attendanceImpact, 20, 95);
+
+    animateImpactUpdate('exam', Math.round(examImpact));
+    animateImpactUpdate('study', Math.round(studyImpact));
+    animateImpactUpdate('attendance', Math.round(attendanceImpact));
 }
 
 async function checkAuth() {
@@ -621,7 +630,6 @@ async function checkAuth() {
             document.getElementById('userName').textContent = data.user.full_name || data.user.username;
             document.getElementById('userEmail').textContent = data.user.email;
             document.getElementById('userStatsTitle').textContent = `${data.user.full_name || data.user.username}'s Statistics`;
-            
             loadUserStats();
         } else {
             window.location.href = '/login';
@@ -656,26 +664,31 @@ async function logout() {
 }
 
 function clamp(n, min, max) {
-    n = parseInt(n);
-    if (isNaN(n)) n = min;
+    n = Number(n);
+    if (isNaN(n)) return min;
     return Math.max(min, Math.min(max, n));
 }
 
+
 async function doPredict() {
-    const btn = event.target;
-    const originalText = btn.innerHTML;
-    
-    btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Analyzing...';
-    btn.disabled = true;
+    const btn = (typeof event !== 'undefined' && event.target) ? (event.target.closest('button') || event.target) : null;
+    const originalText = btn ? btn.innerHTML : 'Processing...';
+    if (btn) {
+        btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Analyzing...';
+        btn.disabled = true;
+    }
 
     const payload = {
-        first_exam_grade: clamp(document.getElementById('first_exam_grade').value, 1, 20),
-        second_exam_grade: clamp(document.getElementById('second_exam_grade').value, 1, 20),
-        study_time: clamp(document.getElementById('study_time').value, 1, 4),
-        past_failures: clamp(document.getElementById('past_failures').value, 0, 10),
-        absences: clamp(document.getElementById('absences').value, 0, 200),
-        schoolsup: document.getElementById('schoolsup').value,
-        internet: document.getElementById('internet').value
+        hours_studied: clamp(document.getElementById('hours_studied').value, 0, 100),
+        attendance: clamp(document.getElementById('attendance').value, 0, 100),
+        previous_scores: clamp(document.getElementById('previous_scores').value, 0, 100),
+        motivation_level: document.getElementById('motivation_level').value,
+        sleep_hours: clamp(document.getElementById('sleep_hours').value, 1, 14),
+        internet_access: document.getElementById('internet_access').value,
+        tutoring_sessions: clamp(document.getElementById('tutoring_sessions').value, 0, 20),
+        parental_involvement: document.getElementById('parental_involvement').value,
+        teacher_quality: document.getElementById('teacher_quality').value,
+        physical_activity: clamp(document.getElementById('physical_activity').value, 0, 100)
     };
 
     try {
@@ -685,30 +698,32 @@ async function doPredict() {
             body: JSON.stringify(payload)
         });
         const js = await r.json();
-        
+
         if (!js.ok) {
             alert(js.error || 'Prediction error');
             return;
         }
 
-        const pred = js.pred;
-        const level = js.level;
+        const pred = js.pred; 
+        const level = js.level || {};
         const insights = js.insights || [];
-        
+
         document.getElementById('result').classList.remove('d-none');
         const badge = document.getElementById('predBadge');
-        badge.innerText = pred + " / 20";
-        
+        badge.innerText = pred + " / 100";
+
         const levelEl = document.getElementById('predLevel');
-        levelEl.innerText = level.level;
-        levelEl.style.background = level.color;
-        
-        document.getElementById('predExplain').innerText = level.explain;
+        levelEl.innerText = level.level || '';
+        levelEl.style.background = level.color || '#6c757d';
+        levelEl.style.color = '#fff';
+
+        document.getElementById('predExplain').innerText = level.explain || '';
+
         document.getElementById('saveBtn').classList.remove('d-none');
         document.getElementById('saveBtn').dataset.payload = JSON.stringify({
-            fields: payload, 
-            pred: pred, 
-            level: level.level
+            fields: payload,
+            pred: pred,
+            level: level.level || ''
         });
 
         const insightsContainer = document.getElementById('aiInsights');
@@ -738,45 +753,45 @@ async function doPredict() {
         badge.style.animation = 'pulse 1s ease-in-out';
         setTimeout(() => badge.style.animation = '', 1000);
 
+        calculateDynamicImpacts();
+
     } catch (error) {
-        alert('Network error: ' + error.message);
+        alert('Network error: ' + (error.message || error));
     } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
+        if (btn) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
     }
 }
 
 async function savePrediction() {
     const btn = document.getElementById('saveBtn');
     const originalText = btn.innerHTML;
-    
     btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Saving...';
     btn.disabled = true;
 
     try {
-        const payload = JSON.parse(btn.dataset.payload);
+        const payload = JSON.parse(btn.dataset.payload || '{}');
         const r = await fetch('/api/save', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload)
         });
-        
+
         if (!r.ok) {
             throw new Error(`HTTP error! status: ${r.status}`);
         }
-        
+
         const text = await r.text();
         const js = text ? JSON.parse(text) : { ok: false, error: 'Empty response' };
-        
+
         if (js.ok) {
             btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Saved!';
             btn.classList.remove('btn-success');
             btn.classList.add('btn-secondary');
             btn.disabled = true;
-            setTimeout(() => {
-                btn.classList.add('d-none');
-            }, 2000);
-            
+            setTimeout(() => btn.classList.add('d-none'), 1800);
             loadUserStats();
         } else {
             alert('Save error: ' + js.error);
@@ -785,20 +800,23 @@ async function savePrediction() {
         }
     } catch (error) {
         console.error('Save error:', error);
-        alert('Save error: ' + error.message);
+        alert('Save error: ' + (error.message || error));
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
 }
 
 function setupInputListeners() {
-    const inputs = ['first_exam_grade', 'second_exam_grade', 'study_time', 'absences', 'past_failures'];
-    
-    inputs.forEach(inputId => {
-        const input = document.getElementById(inputId);
-        if (input) {
-            input.addEventListener('input', calculateDynamicImpacts);
-            input.addEventListener('change', calculateDynamicImpacts);
+    const inputs = [
+        'hours_studied','previous_scores','attendance',
+        'sleep_hours','tutoring_sessions','parental_involvement','teacher_quality'
+    ];
+
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', calculateDynamicImpacts);
+            el.addEventListener('change', calculateDynamicImpacts);
         }
     });
 }
@@ -806,21 +824,16 @@ function setupInputListeners() {
 document.addEventListener('DOMContentLoaded', function() {
     applyTheme(currentTheme);
     checkAuth();
-    
     updateImpactStats();
-    
     setupInputListeners();
-    
-    setTimeout(calculateDynamicImpacts, 1000);
-    
+    setTimeout(calculateDynamicImpacts, 600);
     const inputs = document.querySelectorAll('input[type="number"]');
     inputs.forEach(input => {
         input.addEventListener('change', function() {
-            const min = parseInt(this.min);
-            const max = parseInt(this.max);
-            let value = parseInt(this.value);
-            
-            if (isNaN(value)) value = min;
+            const min = Number(this.min || -Infinity);
+            const max = Number(this.max || Infinity);
+            let value = Number(this.value);
+            if (isNaN(value)) value = min === -Infinity ? 0 : min;
             this.value = clamp(value, min, max);
         });
     });

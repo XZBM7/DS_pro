@@ -1,0 +1,1176 @@
+<!doctype html>
+<html lang="en" data-bs-theme="light">
+<head>
+<meta charset="utf-8">
+<title>User Guide | Student Performance Predictor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+<style>
+:root {
+    --primary: #4361ee;
+    --secondary: #3f37c9;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --gradient: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    --success: #28a745;
+    --info: #17a2b8;
+    --warning: #ffc107;
+    --danger: #dc3545;
+}
+
+[data-bs-theme="dark"] {
+    --primary: #4cc9f0;
+    --secondary: #4361ee;
+    --light: #1a1a1a;
+    --dark: #ffffff;
+    --gradient: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+}
+
+body {
+    background: var(--light);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.7;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+[data-bs-theme="dark"] .glass-card {
+    background: rgba(30, 30, 30, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.theme-switcher {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.theme-switcher:hover {
+    background: rgba(67, 97, 238, 0.1);
+}
+
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.feature-icon:hover {
+    transform: scale(1.05);
+}
+
+.gradient-bg {
+    background: var(--gradient);
+}
+
+.hero-section {
+    background: var(--gradient);
+    color: white;
+    border-radius: 25px;
+    padding: 4rem 2rem;
+    margin-bottom: 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="rgba(255,255,255,0.1)"><polygon points="0,0 1000,50 1000,100 0,100"/></svg>');
+    background-size: cover;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.guide-step {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    border-left: 5px solid var(--primary);
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+}
+
+[data-bs-theme="dark"] .guide-step {
+    background: rgba(40, 40, 40, 0.95);
+}
+
+.guide-step:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.step-number {
+    width: 50px;
+    height: 50px;
+    background: var(--gradient);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+}
+
+.feature-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.3);
+    height: 100%;
+}
+
+[data-bs-theme="dark"] .feature-card {
+    background: rgba(40, 40, 40, 0.9);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.feature-icon-sm {
+    width: 60px;
+    height: 60px;
+    background: var(--gradient);
+    color: white;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto 1.5rem;
+}
+
+.code-block {
+    background: rgba(30, 30, 30, 0.95);
+    color: #00ff9d;
+    border-radius: 10px;
+    padding: 1.5rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    margin: 1rem 0;
+    border-left: 4px solid var(--primary);
+}
+
+[data-bs-theme="dark"] .code-block {
+    background: rgba(20, 20, 20, 0.95);
+}
+
+.tip-box {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    border-left: 4px solid var(--info);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+[data-bs-theme="dark"] .tip-box {
+    background: linear-gradient(135deg, #1a237e, #283593);
+    color: white;
+}
+
+.warning-box {
+    background: linear-gradient(135deg, #ffebee, #ffcdd2);
+    border-left: 4px solid var(--danger);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+[data-bs-theme="dark"] .warning-box {
+    background: linear-gradient(135deg, #b71c1c, #c62828);
+    color: white;
+}
+
+.success-box {
+    background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+    border-left: 4px solid var(--success);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+[data-bs-theme="dark"] .success-box {
+    background: linear-gradient(135deg, #1b5e20, #2e7d32);
+    color: white;
+}
+
+.guide-nav {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    position: sticky;
+    top: 20px;
+}
+
+[data-bs-theme="dark"] .guide-nav {
+    background: rgba(40, 40, 40, 0.95);
+}
+
+.nav-pills .nav-link {
+    border-radius: 10px;
+    margin: 0.25rem 0;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link.active {
+    background: var(--gradient);
+    box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+}
+
+.faq-item {
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding: 1.5rem 0;
+}
+
+[data-bs-theme="dark"] .faq-item {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.faq-question {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.faq-answer {
+    color: var(--dark);
+    opacity: 0.8;
+}
+
+.progress-indicator {
+    position: fixed;
+    top: 50%;
+    right: 30px;
+    transform: translateY(-50%);
+    z-index: 1000;
+}
+
+.progress-dot {
+    width: 12px;
+    height: 12px;
+    background: rgba(67, 97, 238, 0.3);
+    border-radius: 50%;
+    margin: 1rem 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.progress-dot.active {
+    background: var(--primary);
+    transform: scale(1.3);
+}
+
+.progress-dot:hover {
+    transform: scale(1.2);
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 3rem 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .guide-step {
+        padding: 2rem 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-card {
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .progress-indicator {
+        display: none;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.text-gradient {
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light glass-card mb-4">
+    <div class="container">
+        <a class="navbar-brand nav-brand" href="/">
+            <i class="bi bi-graph-up-arrow me-2"></i>
+            EduPredict AI
+        </a>
+        
+        <div class="navbar-nav ms-auto d-flex align-items-center">
+            <div class="theme-switcher me-3" onclick="toggleTheme()">
+                <i class="bi bi-sun-fill" id="themeIcon"></i>
+            </div>
+            <a class="nav-link" href="/">
+                <i class="bi bi-house me-1"></i>Home
+            </a>
+             <a class="nav-link" href="/dashboard">
+                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+            </a>
+            <a class="nav-link" href="/analytics">
+                <i class="bi bi-bar-chart me-1"></i>Analytics
+            </a>
+            <a class="nav-link" href="/model_visuals">
+    <i class="bi bi-bar-chart-line me-1"></i>Model Visuals
+</a>
+
+            <a class="nav-link" href="/insights">
+                <i class="bi bi-lightbulb me-1"></i>AI Insights
+            </a>
+            
+            <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle user-dropdown" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle me-1"></i>
+                    <span id="userName">User</span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><span class="dropdown-item-text small text-muted" id="userEmail">user@example.com</span></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="/profile">
+                        <i class="bi bi-person me-2"></i>My Profile
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" onclick="logout()"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="hero-section fade-in-up">
+        <div class="hero-content">
+            <div class="feature-icon gradient-bg text-white mx-auto mb-4">
+                <i class="bi bi-book"></i>
+            </div>
+            <h1 class="display-4 fw-bold mb-3">User Guide & Documentation</h1>
+            <p class="lead mb-4 opacity-90">Learn how to effectively use EduPredict AI to predict student performance and gain valuable insights</p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a href="#getting-started" class="btn btn-light btn-lg fw-semibold">Get Started</a>
+                <a href="#about-platform" class="btn btn-outline-light btn-lg">Explore Features</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="guide-nav">
+                <h5 class="fw-bold mb-3 text-gradient">Guide Navigation</h5>
+                <div class="nav flex-column nav-pills" id="guideNav">
+                    <a class="nav-link active" href="#getting-started">Getting Started</a>
+                    <a class="nav-link" href="#about-platform">About Platform</a>
+                    <a class="nav-link" href="#making-predictions">Making Predictions</a>
+                    <a class="nav-link" href="#understanding-results">Understanding Results</a>
+                    <a class="nav-link" href="#ai-insights">AI Insights</a>
+                    <a class="nav-link" href="#data-management">Data Management</a>
+                    <a class="nav-link" href="#best-practices">Best Practices</a>
+                    <a class="nav-link" href="#faq">FAQ</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <section id="getting-started" class="mb-5 fade-in-up">
+                <h2 class="fw-bold mb-4 text-gradient">
+                    <i class="bi bi-rocket-takeoff me-2"></i>
+                    Getting Started
+                </h2>
+                
+                <div class="guide-step">
+                    <div class="step-number">1</div>
+                    <h4 class="fw-bold mb-3">Create Your Account</h4>
+                    <p>Start by creating your personal account to access all features of EduPredict AI:</p>
+                    <ul class="mb-4">
+                        <li>Click on <strong>Register</strong> from the login page</li>
+                        <li>Fill in your personal information</li>
+                        <li>Verify your email address</li>
+                        <li>Log in to your new account</li>
+                    </ul>
+                    <div class="tip-box">
+                        <i class="bi bi-lightbulb me-2"></i>
+                        <strong>Tip:</strong> Use a professional email address as your predictions will be associated with this account.
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <div class="step-number">2</div>
+                    <h4 class="fw-bold mb-3">Navigate the Dashboard</h4>
+                    <p>Familiarize yourself with the main dashboard interface:</p>
+                    <div class="row g-4 mt-3">
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <div class="feature-icon-sm">
+                                    <i class="bi bi-plus-circle"></i>
+                                </div>
+                                <h5>New Prediction</h5>
+                                <p class="text-muted">Create new grade predictions using our AI model</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <div class="feature-icon-sm">
+                                    <i class="bi bi-bar-chart"></i>
+                                </div>
+                                <h5>Analytics</h5>
+                                <p class="text-muted">View detailed statistics and performance metrics</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <div class="feature-icon-sm">
+                                    <i class="bi bi-lightbulb"></i>
+                                </div>
+                                <h5>AI Insights</h5>
+                                <p class="text-muted">Get intelligent recommendations and insights</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <div class="feature-icon-sm">
+                                    <i class="bi bi-table"></i>
+                                </div>
+                                <h5>All Records</h5>
+                                <p class="text-muted">Manage and review all your predictions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="about-platform" class="mb-5 fade-in-up">
+                <h2 class="fw-bold mb-4 text-gradient">
+                    <i class="bi bi-info-circle me-2"></i>
+                    About EduPredict AI
+                </h2>
+
+                <div class="guide-step">
+                    <h4 class="fw-bold mb-3">Platform Mission & Vision</h4>
+                    <p><strong>EduPredict AI</strong> is an advanced educational analytics platform designed to revolutionize how educators and institutions predict and improve student academic performance.</p>
+                    
+                    <div class="row g-4 mt-4">
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-bullseye display-6 mb-3"></i>
+                                    <h5>Our Mission</h5>
+                                    <p class="mb-0">To empower educators with AI-driven insights for proactive student success interventions</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-success text-white">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-eye display-6 mb-3"></i>
+                                    <h5>Our Vision</h5>
+                                    <p class="mb-0">Creating data-informed educational environments where every student can achieve their full potential</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <h4 class="fw-bold mb-3">What Problem We Solve</h4>
+                    <p>Traditional educational assessment often occurs too late for effective intervention. EduPredict AI addresses this by:</p>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-4 text-center">
+                            <i class="bi bi-clock text-warning fs-1 mb-3"></i>
+                            <h6>Early Identification</h6>
+                            <p class="small text-muted">Identify at-risk students before final exams</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <i class="bi bi-graph-up text-success fs-1 mb-3"></i>
+                            <h6>Performance Prediction</h6>
+                            <p class="small text-muted">Accurately predict final grades with 94% confidence</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <i class="bi bi-lightbulb text-info fs-1 mb-3"></i>
+                            <h6>Actionable Insights</h6>
+                            <p class="small text-muted">Provide targeted improvement recommendations</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <h4 class="fw-bold mb-3">Target Users</h4>
+                    <p>EduPredict AI serves multiple educational stakeholders:</p>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start p-3 border rounded">
+                                <i class="bi bi-person-badge text-primary fs-4 me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-2">Teachers & Professors</h6>
+                                    <p class="small mb-0 text-muted">Monitor student progress and identify needs for extra support</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start p-3 border rounded">
+                                <i class="bi bi-building text-success fs-4 me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-2">Educational Institutions</h6>
+                                    <p class="small mb-0 text-muted">Make data-driven decisions for curriculum and resource allocation</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start p-3 border rounded">
+                                <i class="bi bi-person text-warning fs-4 me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-2">Students & Parents</h6>
+                                    <p class="small mb-0 text-muted">Understand performance trends and areas for improvement</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start p-3 border rounded">
+                                <i class="bi bi-clipboard-data text-info fs-4 me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-2">Researchers</h6>
+                                    <p class="small mb-0 text-muted">Analyze educational patterns and predictive factors</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="making-predictions" class="mb-5 fade-in-up">
+                <h2 class="fw-bold mb-4 text-gradient">
+                    <i class="bi bi-calculator me-2"></i>
+                    Making Predictions
+                </h2>
+
+                <div class="guide-step">
+                    <div class="step-number">1</div>
+                    <h4 class="fw-bold mb-3">Input Student Data</h4>
+                    <p>To make a prediction, you need to provide the following information:</p>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="fw-bold text-primary">Academic Performance</h6>
+                                    <ul class="small mb-0">
+                                        <li>First Exam Grade (G1)</li>
+                                        <li>Second Exam Grade (G2)</li>
+                                        <li>Past Failures</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="fw-bold text-primary">Study Habits</h6>
+                                    <ul class="small mb-0">
+                                        <li>Weekly Study Time</li>
+                                        <li>Number of Absences</li>
+                                        <li>School Support</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="warning-box">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Important:</strong> Ensure all input values are accurate for the most reliable predictions.
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <div class="step-number">2</div>
+                    <h4 class="fw-bold mb-3">Generate Prediction</h4>
+                    <p>Once you've entered all required data:</p>
+                    <ol class="mb-4">
+                        <li>Click the <strong>"Predict Final Grade"</strong> button</li>
+                        <li>Wait for the AI model to process your data</li>
+                        <li>Review the predicted final grade (G3)</li>
+                        <li>Save the prediction to your records</li>
+                    </ol>
+                    
+                    <div class="code-block">
+        // Example Prediction Process<br>
+        1. Input: G1=14, G2=15, StudyTime=3, Failures=0<br>
+        2. AI Model Processing...<br>
+        3. Output: Predicted G3 = <strong>15.2/20</strong><br>
+        4. Performance Level: <span class="text-success">Very Good</span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="understanding-results" class="mb-5 fade-in-up">
+                <h2 class="fw-bold mb-4 text-gradient">
+                    <i class="bi bi-graph-up me-2"></i>
+                    Understanding Results
+                </h2>
+
+                <div class="guide-step">
+                    <h4 class="fw-bold mb-3">Performance Levels</h4>
+                    <p>Each prediction is categorized into performance levels:</p>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card border-success border-2">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-success me-2">Excellent</span>
+                                        <strong>18-20 points</strong>
+                                    </div>
+                                    <p class="small mb-0 text-muted">Outstanding academic performance indicating excellent understanding</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-info border-2">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-info me-2">Very Good</span>
+                                        <strong>14-17 points</strong>
+                                    </div>
+                                    <p class="small mb-0 text-muted">Strong performance with good understanding of material</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-warning border-2">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-warning me-2">Needs Improvement</span>
+                                        <strong>10-13 points</strong>
+                                    </div>
+                                    <p class="small mb-0 text-muted">Average performance with room for improvement</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-danger border-2">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-danger me-2">At Risk</span>
+                                        <strong>0-9 points</strong>
+                                    </div>
+                                    <p class="small mb-0 text-muted">Requires immediate attention and support</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <h4 class="fw-bold mb-3">Confidence Indicators</h4>
+                    <p>Our AI model provides confidence metrics for each prediction:</p>
+                    
+                    <div class="row align-items-center mb-4">
+                        <div class="col-md-8">
+                            <div class="progress" style="height: 12px;">
+                                <div class="progress-bar bg-success" style="width: 94%"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <span class="fw-bold text-success">94% Confidence</span>
+                        </div>
+                    </div>
+                    
+                    <p class="text-muted">This confidence score represents the model's certainty in the prediction accuracy, based on training with 600+ student records.</p>
+                </div>
+            </section>
+
+            <section id="ai-insights" class="mb-5 fade-in-up">
+                <h2 class="fw-bold mb-4 text-gradient">
+                    <i class="bi bi-robot me-2"></i>
+                    AI Insights & Analytics
+                </h2>
+
+                <div class="guide-step">
+                    <h4 class="fw-bold mb-3">Intelligent Recommendations</h4>
+                    <p>The AI Insights page provides personalized recommendations based on your prediction patterns:</p>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <div class="text-center p-3">
+                                <i class="bi bi-clock text-primary fs-1 mb-3"></i>
+                                <h6>Study Optimization</h6>
+                                <p class="small text-muted">Personalized study time recommendations</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3">
+                                <i class="bi bi-calendar-check text-success fs-1 mb-3"></i>
+                                <h6>Attendance Analysis</h6>
+                                <p class="small text-muted">Impact of attendance on performance</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3">
+                                <i class="bi bi-lightbulb text-warning fs-1 mb-3"></i>
+                                <h6>Intervention Strategies</h6>
+                                <p class="small text-muted">Targeted improvement plans</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <h4 class="fw-bold mb-3">Feature Importance</h4>
+                    <p>Understand which factors most influence student performance:</p>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>First Exam (G1)</span>
+                            <strong>24%</strong>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-primary" style="width: 24%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Second Exam (G2)</span>
+                            <strong>22%</strong>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-primary" style="width: 22%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Study Time</span>
+                            <strong>18%</strong>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-primary" style="width: 18%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="data-management" class="mb-5 fade-in-up">
+                <h2 class="fw-bold mb-4 text-gradient">
+                    <i class="bi bi-database me-2"></i>
+                    Data Management
+                </h2>
+
+                <div class="guide-step">
+                    <h4 class="fw-bold mb-3">Managing Your Predictions</h4>
+                    <p>EduPredict AI provides comprehensive data management tools:</p>
+                    
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <div class="feature-icon-sm">
+                                    <i class="bi bi-table"></i>
+                                </div>
+                                <h5>All Records View</h5>
+                                <p class="text-muted">Access complete history of all your predictions with search and filter capabilities</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <div class="feature-icon-sm">
+                                    <i class="bi bi-search"></i>
+                                </div>
+                                <h5>Advanced Filtering</h5>
+                                <p class="text-muted">Filter predictions by date range, performance level, or specific criteria</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <div class="feature-icon-sm">
+                                    <i class="bi bi-download"></i>
+                                </div>
+                                <h5>Data Export</h5>
+                                <p class="text-muted">Export your prediction data to CSV format for external analysis</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="feature-card">
+                                <div class="feature-icon-sm">
+                                    <i class="bi bi-trash"></i>
+                                </div>
+                                <h5>Record Management</h5>
+                                <p class="text-muted">Delete individual predictions or manage your entire dataset</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <h4 class="fw-bold mb-3">Data Privacy & Security</h4>
+                    <p>We take your data privacy seriously:</p>
+                    
+                    <div class="success-box">
+                        <i class="bi bi-shield-check me-2"></i>
+                        <strong>Your Data is Protected:</strong> All predictions are stored securely and are only accessible through your authenticated account.
+                    </div>
+                    
+                    <ul class="mt-3">
+                        <li><strong>Encrypted Storage:</strong> All data is encrypted at rest and in transit</li>
+                        <li><strong>Personal Access:</strong> Your predictions are only visible to you</li>
+                        <li><strong>No Data Sharing:</strong> We never share your data with third parties</li>
+                        <li><strong>Regular Backups:</strong> Your data is regularly backed up for security</li>
+                    </ul>
+                </div>
+
+                <div class="guide-step">
+                    <h4 class="fw-bold mb-3">Exporting Your Data</h4>
+                    <p>To export your prediction data:</p>
+                    <ol>
+                        <li>Navigate to the <strong>"All Records"</strong> page</li>
+                        <li>Click the <strong>"Export CSV"</strong> button</li>
+                        <li>Your browser will download a CSV file containing all your predictions</li>
+                        <li>Open the file in Excel, Google Sheets, or any spreadsheet application</li>
+                    </ol>
+                    
+                    <div class="tip-box">
+                        <i class="bi bi-lightbulb me-2"></i>
+                        <strong>Pro Tip:</strong> Use exported data for longitudinal analysis, reporting, or integration with other educational tools.
+                    </div>
+                </div>
+            </section>
+
+            <section id="best-practices" class="mb-5 fade-in-up">
+                <h2 class="fw-bold mb-4 text-gradient">
+                    <i class="bi bi-star me-2"></i>
+                    Best Practices
+                </h2>
+
+                <div class="guide-step">
+                    <h4 class="fw-bold mb-3">For Accurate Predictions</h4>
+                    
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card border-success h-100">
+                                <div class="card-body">
+                                    <i class="bi bi-check-circle text-success fs-2 mb-3"></i>
+                                    <h5>Do These</h5>
+                                    <ul class="small">
+                                        <li>Use recent and accurate student data</li>
+                                        <li>Input complete information for all fields</li>
+                                        <li>Verify exam scores before submission</li>
+                                        <li>Consider seasonal variations in performance</li>
+                                        <li>Update predictions as new data becomes available</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-danger h-100">
+                                <div class="card-body">
+                                    <i class="bi bi-x-circle text-danger fs-2 mb-3"></i>
+                                    <h5>Avoid These</h5>
+                                    <ul class="small">
+                                        <li>Don't use outdated or estimated data</li>
+                                        <li>Avoid incomplete submissions</li>
+                                        <li>Don't ignore attendance patterns</li>
+                                        <li>Avoid making decisions based on single predictions</li>
+                                        <li>Don't disregard the confidence intervals</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <h4 class="fw-bold mb-3">Effective Usage Strategies</h4>
+                    
+                    <div class="row g-4">
+                        <div class="col-md-4 text-center">
+                            <div class="p-4 border rounded">
+                                <i class="bi bi-collection text-primary fs-1 mb-3"></i>
+                                <h6>Batch Processing</h6>
+                                <p class="small text-muted">Process multiple students at once for comparative analysis</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="p-4 border rounded">
+                                <i class="bi bi-arrow-repeat text-success fs-1 mb-3"></i>
+                                <h6>Regular Updates</h6>
+                                <p class="small text-muted">Update predictions monthly to track progress</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="p-4 border rounded">
+                                <i class="bi bi-people text-warning fs-1 mb-3"></i>
+                                <h6>Team Collaboration</h6>
+                                <p class="small text-muted">Share insights with educational teams</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <h4 class="fw-bold mb-3">Interpreting Results Effectively</h4>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Remember:</strong> Predictions are probabilistic, not deterministic. Use them as guidance tools rather than absolute outcomes.
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h6>Context Matters</h6>
+                            <ul class="small">
+                                <li>Consider individual student circumstances</li>
+                                <li>Account for external factors affecting performance</li>
+                                <li>Remember that motivation and effort can change outcomes</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Actionable Steps</h6>
+                            <ul class="small">
+                                <li>Use predictions to identify support needs early</li>
+                                <li>Develop targeted intervention strategies</li>
+                                <li>Monitor the effectiveness of implemented changes</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="faq" class="mb-5 fade-in-up">
+                <h2 class="fw-bold mb-4 text-gradient">
+                    <i class="bi bi-question-circle me-2"></i>
+                    Frequently Asked Questions
+                </h2>
+
+                <div class="guide-step">
+                    <div class="faq-item">
+                        <div class="faq-question">How accurate are the predictions?</div>
+                        <div class="faq-answer">
+                            Our AI model achieves 94% prediction accuracy based on training with 600+ student records. However, accuracy may vary based on input data quality and completeness.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">What data do I need to make a prediction?</div>
+                        <div class="faq-answer">
+                            You need: First exam score (G1), second exam score (G2), study time, past failures, absences, and information about school support and internet access.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">Can I use this for multiple students?</div>
+                        <div class="faq-answer">
+                            Yes! You can create unlimited predictions for different students. Each prediction is saved to your account and can be managed through the "All Records" section.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">How is my data protected?</div>
+                        <div class="faq-answer">
+                            We use industry-standard encryption, secure authentication, and regular security audits. Your data is never shared with third parties and is only accessible through your account.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">Can I export my prediction data?</div>
+                        <div class="faq-answer">
+                            Yes! You can export all your predictions to CSV format from the "All Records" page for further analysis in external tools.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">What should I do if a prediction seems inaccurate?</div>
+                        <div class="faq-answer">
+                            First, verify your input data accuracy. Consider contextual factors that might affect performance. Remember that predictions are probabilistic and should be used as guidance alongside professional judgment.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">Is there a limit to how many predictions I can make?</div>
+                        <div class="faq-answer">
+                            No, there are no limits on the number of predictions you can create. Our platform is designed to support educational professionals with unlimited usage.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">How often is the AI model updated?</div>
+                        <div class="faq-answer">
+                            Our models are continuously monitored and periodically retrained with new data to maintain and improve accuracy. Major updates are announced through platform notifications.
+                        </div>
+                    </div>
+                </div>
+
+               
+            </section>
+        </div>
+    </div>
+</div>
+
+<div class="progress-indicator d-none d-lg-block">
+    <div class="progress-dot active" data-section="getting-started"></div>
+    <div class="progress-dot" data-section="about-platform"></div>
+    <div class="progress-dot" data-section="making-predictions"></div>
+    <div class="progress-dot" data-section="understanding-results"></div>
+    <div class="progress-dot" data-section="ai-insights"></div>
+    <div class="progress-dot" data-section="data-management"></div>
+    <div class="progress-dot" data-section="best-practices"></div>
+    <div class="progress-dot" data-section="faq"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let currentTheme = localStorage.getItem('theme') || 'light';
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    const themeIcon = document.getElementById('themeIcon');
+    themeIcon.className = theme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+    localStorage.setItem('theme', theme);
+}
+
+function toggleTheme() {
+    currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+    applyTheme(currentTheme);
+}
+
+async function checkAuth() {
+    try {
+        const response = await fetch('/api/user');
+        const data = await response.json();
+        
+        if (data.ok) {
+            const user = data.user;
+            document.getElementById('userName').textContent = user.full_name || user.username;
+            document.getElementById('userEmail').textContent = user.email;
+        } else {
+            window.location.href = '/login';
+        }
+    } catch (error) {
+        console.error('Auth check failed:', error);
+        window.location.href = '/login';
+    }
+}
+
+async function logout() {
+    try {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = '/login';
+    } catch (error) {
+        console.error('Logout failed:', error);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    applyTheme(currentTheme);
+    checkAuth();
+    
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    window.addEventListener('scroll', function() {
+        const sections = document.querySelectorAll('section');
+        const progressDots = document.querySelectorAll('.progress-dot');
+        
+        let currentSection = '';
+        
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop - 100;
+            if (window.scrollY >= sectionTop) {
+                currentSection = section.getAttribute('id');
+            }
+        });
+
+        progressDots.forEach(dot => {
+            dot.classList.remove('active');
+            if (dot.getAttribute('data-section') === currentSection) {
+                dot.classList.add('active');
+            }
+        });
+    });
+
+    document.querySelectorAll('.progress-dot').forEach(dot => {
+        dot.addEventListener('click', function() {
+            const sectionId = this.getAttribute('data-section');
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>
