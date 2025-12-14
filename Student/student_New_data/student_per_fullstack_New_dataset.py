@@ -231,7 +231,7 @@ import plotly.graph_objects as go
 import plotly.io as pio
 from plotly.subplots import make_subplots
 
-DATA_FILE = r"Student/data/StudentPerformanceFactors.csv"
+DATA_FILE = r"D:\Python\DS1\Student\data\StudentPerformanceFactors.csv"
 ARTIFACTS_DIR = Path("./artifacts")
 WEB_DIR = Path("./web")
 MODEL_PATH = ARTIFACTS_DIR / "best_model.keras"

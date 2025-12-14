@@ -242,7 +242,7 @@ MONGO_DB = "student_predictor_db"
 MONGO_COLLECTION = "predictions"
 USERS_COLLECTION = "users"
 
-JWT_SECRET = "your-jwt-secret-key-change-in-production"
+JWT_SECRET = ""
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRY_HOURS = 24
 
@@ -394,6 +394,10 @@ model_performance['Neural Network'] = {
 print("Neural Network Performance:")
 print(f"MAE: {model_performance['Neural Network']['MAE']:.3f}")
 print(f"R²: {model_performance['Neural Network']['R2']:.3f}")
+
+
+
+###############################################################################################
 
 try:
     mongo = MongoClient(MONGO_URI)
@@ -1023,15 +1027,22 @@ def get_records():
     
     user_id = request.user_id
     rows = []
+    
     for d in coll.find({"user_id": user_id}).sort("created_at", -1):
-        rows.append({
+        record = {
             "_id": str(d.get("_id")),
             "pred": d.get("pred"),
             "level": d.get("level"),
             "created_at": d.get("created_at").strftime("%Y-%m-%d %H:%M:%S")
-        })
+        }
+        
+      
+        for key in friendly_to_dataset.keys():
+            record[key] = d.get(key)
+            
+        rows.append(record)
+        
     return jsonify({"ok": True, "rows": rows})
-
 @app.route("/api/delete/<rid>", methods=["DELETE"])
 @api_login_required
 def delete_record(rid):

@@ -219,7 +219,7 @@ import tensorflow as tf
 from tensorflow.keras import layers, models, callbacks
 from flask import Flask, request, jsonify, send_from_directory
 
-DATA_FILE = r"Student/data/StudentPerformanceFactors.csv"
+DATA_FILE = r"D:\Python\DS1\Student\data\StudentPerformanceFactors.csv"
 ARTIFACTS_DIR = Path("./artifacts")
 WEB_DIR = Path("./web")
 MODEL_PATH = ARTIFACTS_DIR / "best_model.keras"
